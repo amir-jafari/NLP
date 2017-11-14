@@ -24,12 +24,12 @@
 # Comparing and searching strings
 # ----------------------------------------------------------------------------------------------------------------------
 import ngram
-ngram.NGram.compare('Ham','Spam',N=1)
+ngram.NGram.compare('Ham','Spam', N=1)
 
 G = ngram.NGram(['joe','joseph','jon','john','sally'])
-G.search('jon')
-G.search('jon', threshold=0.3)
-G.find('jose')
+print(G.search('jon'))
+print(G.search('jon', threshold=0.3))
+print(G.find('jose'))
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Transforming items
@@ -38,9 +38,9 @@ G.find('jose')
 def lower(s):
 	return s.lower()
 G = ngram.NGram(key=lower)
-G.key('AbC')
+print(G.key('AbC'))
 
-G.pad('abc')
+print(G.pad('abc'))
 list(G.split('abc'))
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -49,12 +49,12 @@ list(G.split('abc'))
 
 G = ngram.NGram(['joe','joseph','jon','john','sally'])
 G.update(['jonathan'])
-sorted(list(G))
-G.discard('sally')
-sorted(list(G))
+print(sorted(list(G)))
+print(G.discard('sally'))
+print(sorted(list(G)))
 G.difference_update(ngram.NGram(['joe']))
-sorted(list(G))
+print(sorted(list(G)))
 G.intersection_update(['james', 'joseph', 'joe', 'jon'])
-sorted(list(G))
+print(sorted(list(G)))
 G.symmetric_difference_update(ngram.NGram(['jimmy', 'jon']))
-sorted(list(G))
+print(sorted(list(G)))
