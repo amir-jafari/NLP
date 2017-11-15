@@ -8,69 +8,145 @@
 # %%%%%%%%%%%%% Text Mining %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #
 # ---------------------------------------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------------------------------
-# -------------------------------Tokenizing-----------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------------------------------
 
-# tokenizing - word tokenizers ...... sentence tokenizers
+# Import nltk book
 
-# Corpus - Body of text
-# Lexicon - Words and their meanings.
-# Token - Each "entity" that is a part of whatever was split up based on rules.
-# ----------------------------------------------------------------------------------------------------------------------
-from nltk.tokenize import sent_tokenize, word_tokenize
+import nltk
 
-EXAMPLE_TEXT = "Hello Every one, How is it going? Python is awesome and we are learning it. This is Python script for this Course."
+from nltk.book import *
+# ---------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------Dispersion plot-----------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
+
+text4.dispersion_plot(["citizens", "democracy", "freedom", "duties", "America"])
+text4.dispersion_plot(["China", "unity", "freedom", "USA", "America"])
+text4.dispersion_plot(["China", "unity", "freedom", "us", "America"])
+text4.dispersion_plot(["hate", "unity", "love", "us", "crime"])
+text4.dispersion_plot(["tax", "immigration", "health", "care"])
+
+# ---------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------Frequency distribution----------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
+
+Freq_Dist = FreqDist(text1)
+print(Freq_Dist)
+
+Freq_Dist.most_common(50)
+Freq_Dist['his']
 
 
-Word_Tok = word_tokenize(EXAMPLE_TEXT)
-for i in Word_Tok:
-    print(i)
+Freq_Dist.plot(50, cumulative = False)
+Freq_Dist.plot(50, cumulative = True)
 
-Sen_Tok = sent_tokenize(EXAMPLE_TEXT)
 
-for i in Sen_Tok:
-    print(i)
+Freq_Dist.hapaxes()
+Once_happend= Freq_Dist.hapaxes()
+text4.count('men') / float(len(text6) * 100)
 
-print("All words in a list = ", Word_Tok)
-print("All sentences in a list = ", Sen_Tok)
+# ---------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------Finding words------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 
-# Do the dir(Sen_Tok) and same thing on the Word_Tok the figure out these objects are what data frames then
-# try to use some methods on it. Since these are lis the list method will work perfectly fine.
-# ----------------------------------------------------------------------------------------------------------------------
-# -------------------------------Stemming------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------------------------------
+Value_set = set(text1)
 
-from nltk.stem.porter import *
-PS = PorterStemmer()
+long_words = [words for words in Value_set if len(words) > 17]
+sorted(long_words)
+# ---------------------------
+s1 = []
+for i,v in enumerate(Value_set):
+    if len(v) > 17:
+        s1.append(v)
+sorted(s1)
 
-EXAMPLE_TEXT = ['get', 'getting', 'got','gotten']
+T = sorted(s1)==sorted(long_words)
+print(T)
+# ---------------------------
+s2 = []
 
-for w in EXAMPLE_TEXT:
-    print(PS.stem(w))
-# ----------------------------------------------------------------------------------------------------------------------
+for i,v in enumerate(Value_set):
+    if len(v) <= 1:
+        s2.append(i)
+V1 = list(Value_set)
+s3 = []
+for i in range(len(s2)):
+    V1[s2[i]] = []
+# ---------------------------
+F_D1 = FreqDist(text2)
+sorted(words1 for words1 in set(text2) if len(words1) > 7 and F_D1[words1] > 7)
+# ---------------------------
+my_text = ["Here", "are", "some", "words", "that", "are", "in", "a", "list"]
+vocab = sorted(set(my_text))
+word_freq = nltk.FreqDist(my_text)
 
-from nltk.stem.snowball import SnowballStemmer
-print(" ".join(SnowballStemmer.languages))
-SNB = stemmer = SnowballStemmer("english")
+print(vocab)
+print(word_freq)
 
-for w in EXAMPLE_TEXT:
-    print(SNB.stem(w))
-# ----------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------Counting and Frequency----------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 
-from nltk.stem.lancaster import LancasterStemmer
+LC = [len(words2) for words2 in text1]
+print(LC)
 
-LS = LancasterStemmer()
 
-for w in EXAMPLE_TEXT:
-    print(LS.stem(w))
-# ----------------------------------------------------------------------------------------------------------------------
 
-from nltk.stem import WordNetLemmatizer
-WL = WordNetLemmatizer()
+F_D2 = FreqDist(len(words2) for words2 in text1)
+print(F_D2)
+F_D2.plot(6)
 
-EXAMPLE_TEXT = ['gets', 'churches', 'breaked','brokken']
+# ---------------------------
 
-for w in EXAMPLE_TEXT:
-    print(WL.lemmatize(w))
+F_D2.most_common()
+F_D2.max()
+F_D2[3]
+F_D2.freq(3)
 
+# ---------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------Investigating Words------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------
+LC2 = [words3 for words3 in set(text1) if words3.endswith('ness')]
+print(LC2)
+print(sorted(LC2))
+LC3 = [words4 for words4 in set(text2) if words4.endswith('ness')]
+print(LC3)
+print(sorted(LC3))
+LC4 = [words5 for words5 in set(text3) if words5.endswith('ness')]
+print(LC4)
+print(sorted(LC4))
+
+# ---------------------------
+
+print(sorted(term for term in set(text4) if 'nt' in term))
+
+print(sorted(item for item in set(text6) if item.istitle()))
+
+print(sorted(item for item in set(sent7) if item.isdigit()))
+
+print(sorted(w for w in set(text7) if '-' in w and 'index' in w))
+
+print(sorted(wd for wd in set(text3) if wd.istitle() and len(wd) > 10))
+
+print(sorted(w for w in set(sent7) if not w.islower()))
+
+print(sorted(t for t in set(text2) if 'cie' in t or 'cei' in t))
+
+# ---------------------------
+ls = ['amir', '1', 'Martin', '2016', 'Hagan', ',']
+a1 =[word.lower() for word in ls if word.isalpha()]
+print(a1)
+a2 = set(word.lower() for word in ls if word.isalpha())
+print(len(a2))
+
+for word in ls:
+    if word.endswith('n'):
+        print(word)
+
+# ---------------------------
+
+for word6 in ls:
+    if word6.islower():
+        print(word6, 'is a lowercase word')
+    elif word6.istitle():
+        print(word6, 'is a titlecase word')
+    else:
+        print(word6, 'is others')

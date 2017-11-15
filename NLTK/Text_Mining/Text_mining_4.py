@@ -7,83 +7,124 @@
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # %%%%%%%%%%%%% Text Mining %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #
+# ---------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
-# -------------------------------Reading Data====> URL------------------------------------------------------------------
+# -------------------------------Tokenizing-----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 
-# from urllib import request     ## Python 3.5
-from urllib2 import urlopen
-from nltk.tokenize import word_tokenize
+# tokenizing - word tokenizers ...... sentence tokenizers
+
+# Corpus - Body of text
+# Lexicon - Words and their meanings.
+# Token - Each "entity" that is a part of whatever was split up based on rules.
+# ----------------------------------------------------------------------------------------------------------------------
+from nltk.tokenize import sent_tokenize, word_tokenize
 import nltk
 
-url = "https://moz.com/robots.txt"
-# response = request.urlopen(url)   ## Python 3.5
-response = urlopen(url)
-raw = response.read().decode('utf8')
-
-print(type(raw))
-print(len(raw))
-print(raw)
-print(raw.find("$"))
+EXAMPLE_TEXT = "Hello Every one, How is it going? Python is awesome and we are learning it. This is Python script for this Course."
 
 
-tokens = word_tokenize(raw)
-print(tokens)
-print(tokens[:15])
+Word_Tok = word_tokenize(EXAMPLE_TEXT)
+for i in Word_Tok:
+    print(i)
 
-text = nltk.Text(tokens)
-print(text[1:15])
-print(text.count('$'))
-print(text.collocations())
+Sen_Tok = sent_tokenize(EXAMPLE_TEXT)
 
-text.plot()
+for i in Sen_Tok:
+    print(i)
 
+print("All words in a list = ", Word_Tok)
+print("All sentences in a list = ", Sen_Tok)
+
+# Do the dir(Sen_Tok) and same thing on the Word_Tok the figure out these objects are what data frames then
+# try to use some methods on it. Since these are lis the list method will work perfectly fine.
 # ----------------------------------------------------------------------------------------------------------------------
-# -------------------------------Reading Data====> Local file-----------------------------------------------------------
+# -------------------------------Stemming------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 
-import os
-# os.chdir('D:')
+from nltk.stem.porter import *
+PS = PorterStemmer()
 
-f = open('document.txt', 'rU')
-raw = f.read()
+EXAMPLE_TEXT = ['get', 'getting', 'got','gotten']
+
+for w in EXAMPLE_TEXT:
+    print(PS.stem(w))
+
+porter = nltk.PorterStemmer()
+
+
+def unusual_words(text):
+    text_vocab = set(porter.stem(w).lower() for w in text if w.isalpha())
+    english_vocab = set(porter.stem(w).lower() for w in nltk.corpus.words.words())
+    unusual = text_vocab.difference(english_vocab)
+    return sorted(unusual)
+
+
+unusual_words(nltk.corpus.gutenberg.words('austen-emma.txt'))
+
+from nltk.stem.porter import *
+
+stemmer = PorterStemmer()
+plurals = ['caresses', 'flies', 'dies', 'mules', 'denied',
+           'died', 'agreed', 'owned', 'humbled', 'sized',
+           'meeting', 'stating', 'siezing', 'itemization',
+           'sensational', 'traditional', 'reference', 'colonizer',
+           'plotted']
+
+singles = [stemmer.stem(plural) for plural in plurals]
+
+# amir
+from nltk.stem.porter import *
+
+PS = PorterStemmer()
+
+EXAMPLE_TEXT = ['pyhton', 'pythonly', 'pythoned', 'pythoning']
+
+for w in EXAMPLE_TEXT:
+    print(PS.stem(w))
+# ----------------------------------------------------------------------------------------------------------------------
+
+from nltk.stem.snowball import SnowballStemmer
+print(" ".join(SnowballStemmer.languages))
+SNB = stemmer = SnowballStemmer("english")
+
+for w in EXAMPLE_TEXT:
+    print(SNB.stem(w))
+# ----------------------------------------------------------------------------------------------------------------------
+
+from nltk.stem.lancaster import LancasterStemmer
+
+LS = LancasterStemmer()
+
+for w in EXAMPLE_TEXT:
+    print(LS.stem(w))
+# ----------------------------------------------------------------------------------------------------------------------
+
+from nltk.stem import WordNetLemmatizer
+WL = WordNetLemmatizer()
+
+EXAMPLE_TEXT = ['gets', 'churches', 'breaked','brokken']
+
+for w in EXAMPLE_TEXT:
+    print(WL.lemmatize(w))
 
 # ----------------------------------------------------------------------------------------------------------------------
-# -------------------------------Reading Data====> HTML-----------------------------------------------------------------
+# Lemmatizing
 # ----------------------------------------------------------------------------------------------------------------------
+from nltk.stem import WordNetLemmatizer
 
-url = "http://www.bbc.com/news/technology"
-# html = request.urlopen(url).read().decode('utf8')  ## Python 3.5
-html = urlopen(url).read().decode('utf8')  ## Python 3.5
-html[:60]
+lemmatizer = WordNetLemmatizer()
 
-from bs4 import BeautifulSoup
-raw = BeautifulSoup(html, "html5lib").get_text()
-tokens = word_tokenize(raw)
-print(tokens)
+print(lemmatizer.lemmatize("cats"))
+print(lemmatizer.lemmatize("cacti"))
+print(lemmatizer.lemmatize("geese"))
+print(lemmatizer.lemmatize("rocks"))
+print(lemmatizer.lemmatize("python"))
+print(lemmatizer.lemmatize("better", pos="a"))
+print(lemmatizer.lemmatize("best", pos="a"))
+print(lemmatizer.lemmatize("run"))
+print(lemmatizer.lemmatize("run", 'v'))
 
-tokens = tokens[:16]
-text = nltk.Text(tokens)
-text.concordance(',')
 
-# ----------------------------------------------------------------------------------------------------------------------
-# -------------------------------Reading Data====> RSS Feeds-----------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------------------------------
-# sudo pip install pip feedparser
-import feedparser
 
-llog = feedparser.parse("http://languagelog.ldc.upenn.edu/nll/?feed=atom")
-llog['feed']['title']
-
-len(llog.entries)
-post = llog.entries[2]
-
-print(post.title)
-
-content = post.content[0].value
-content[:70]
-
-raw = BeautifulSoup(content, "html5lib").get_text()
-tokens =word_tokenize(raw)
-print(tokens)
 

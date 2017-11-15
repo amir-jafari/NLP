@@ -8,50 +8,55 @@
 # %%%%%%%%%%%%% Text Mining %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #
 # ----------------------------------------------------------------------------------------------------------------------
-# ------------------------------- Corpora and Lexical-------------------------------------------------------------------
+# -------------------------------Some Basics----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
+empty = []
+nested = [empty, empty, empty]
+nested.append('Python')
+print(nested)
 
+empty = []
+nested = [empty, empty, empty]
+nested[0].append('Python')
+print(nested)
+nested[1]=['test']
+print(nested)
+
+# ----------------------------------------------------------------------------------------------------------------------
 import nltk
-fields = nltk.corpus.gutenberg.fileids()
-print(fields)
 
+Text = ['cat', '', ['dog'], []]
+for i in Text:
+    if i:
+        print(i)
 
-first_text = fields[0]
-print(first_text)
-print(len(first_text))
-# ----------------------------------------------------------------------------------------------------------------------
-# ------------------------------- gutenberg-----------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------------------------------
-from nltk.corpus import gutenberg
-G_F = gutenberg.fileids()
+Text1 = ['cat', 'dog', 'tiger']
 
-dir(gutenberg)
-# it has raw, words and sents as method
+for i in Text1:
+    if len(i)<4:
+        print(i)
 
-for field in G_F:
-    num_chars = len(gutenberg.raw(field))
-    num_words = len(gutenberg.words(field))
-    num_sents = len(gutenberg.sents(field))
-    num_vocab = len(set(w.lower() for w in gutenberg.words(field)))
-    print('# Chars', num_chars,'# words', num_words, '# sentens', num_sents,'# vocabs', num_vocab, '-- name of fields',  field)
+text = nltk.corpus.gutenberg.words('milton-paradise.txt')
+longest = ''
+for word in text:
+    if len(word) > len(longest):
+        longest = word
+
+print(longest)
 
 # ----------------------------------------------------------------------------------------------------------------------
+Text = ['Cat', 'hi', 'Dog', 'me', 'Data', 'Machine', 'Corp', 'no', '.']
 
-import nltk
-from nltk.corpus import state_union
-from nltk.tokenize import PunktSentenceTokenizer
+All = all(len(w) > 4 for w in Text)
+ANY = any(len(w) > 4 for w in Text)
 
-Text1 = state_union.raw("2005-GWBush.txt")
-Text2 = state_union.raw("2006-GWBush.txt")
+print(All)
+print(ANY)
+# ----------------------------------------------------------------------------------------------------------------------
 
-ST = PunktSentenceTokenizer(Text1)
-
-Tok = ST.tokenize(Text1)
-
-
-for i in Tok:
-    words = nltk.word_tokenize(i)
-    tag = nltk.pos_tag(words)
-    print(tag)
-
-
+Text = ['Cat', 'hi', 'Dog', 'me', 'Data', 'Machine', 'Corp', 'no', '.']
+Count = 3
+a = []
+for i in range(len(Text) - Count +1):
+    a.append(Text[i:i + Count])
+print(a)

@@ -8,43 +8,46 @@
 # %%%%%%%%%%%%% Text Mining %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #
 # ----------------------------------------------------------------------------------------------------------------------
-# -------------------------------WordNet -----------------------------------------------------------------------------
+# -------------------------------Stop Words-----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 
-# WordNet is a lexical database for the English language, which was created by Princeton, and is part of the NLTK corpus.
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+import nltk
+from nltk.corpus import stopwords
 
-from nltk.corpus import wordnet
+example_sent = "This is a sample sentence, showing off the stop words filtration."
 
-syns = wordnet.synsets("program")
+stop_words = set(stopwords.words('english'))
 
-print(syns[0].name())
+print(stop_words)
 
-# Just the word:
+word_tokens = word_tokenize(example_sent)
 
-print(syns[0].lemmas()[0].name())
-print(syns[0].definition())
-print(syns[0].examples())
+filtered_sentence = []
 
-synonyms = []
-antonyms = []
+for w in word_tokens:
+    if w not in stop_words:
+        filtered_sentence.append(w)
 
-# Next, how might we discern synonyms and antonyms to a word?
-
-for syn in wordnet.synsets("good"):
-    for l in syn.lemmas():
-        synonyms.append(l.name())
-        if l.antonyms():
-            antonyms.append(l.antonyms()[0].name())
-
-print(set(synonyms))
-print(set(antonyms))
-
-# Let's compare the noun of "ship" and "boat:"
-w1 = wordnet.synset('ship.n.01')
-w2 = wordnet.synset('boat.n.01')
-print(w1.wup_similarity(w2))
+print(word_tokens)
+print(filtered_sentence)
 
 
-w1 = wordnet.synset('ship.n.01')
-w2 = wordnet.synset('car.n.01')
-print(w1.wup_similarity(w2))
+stopwords.words('english')
+# ----------------------------------------------------------------------------------
+def content_fraction(text):
+     stopwords = nltk.corpus.stopwords.words('english')
+     content = [w for w in text if w.lower() not in stopwords]
+     return len(content) / len(text)
+
+content_fraction(nltk.corpus.gutenberg.words('austen-emma.txt'))
+
+
+def remove_stopwords(text):
+    text = set(w.lower() for w in text if w.isalpha())
+    stopword_vocab = nltk.corpus.stopwords.words('english')
+    no_stop = text.difference(stopword_vocab)
+    return no_stop
+
+emma_unique_nostops = remove_stopwords(nltk.corpus.gutenberg.words('austen-emma.txt'))

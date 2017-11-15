@@ -8,53 +8,67 @@
 # %%%%%%%%%%%%% Text Mining %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #
 # ----------------------------------------------------------------------------------------------------------------------
-# -------------------------------N gram --------------------------------------------------------------------------------
+# -------------------------------WordNet -----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 
-# In the fields of computational linguistics and probability, an n-gram is a contiguous sequence of n items from a
-# given sequence of text or speech. The items can be phonemes, syllables, letters, words or base pairs according 
-# to the application. The n-grams typically are collected from a text or speech corpus. When the items are words, 
-# n-grams may also be called shingles.
-# 
-# An n-gram of size 1 is referred to as a "unigram"; size 2 is a "bigram" (or, less commonly, a "digram"); size 3 
-# is a "trigram". Larger sizes are sometimes referred to by the value of n in modern language, e.g., "four-gram", 
-# "five-gram", and so on.
+# WordNet is a lexical database for the English language, which was created by Princeton, and is part of the NLTK corpus.
 
-# ----------------------------------------------------------------------------------------------------------------------
-# Comparing and searching strings
-# ----------------------------------------------------------------------------------------------------------------------
-import ngram
-ngram.NGram.compare('Ham','Spam', N=1)
+from nltk.corpus import wordnet
 
-G = ngram.NGram(['joe','joseph','jon','john','sally'])
-print(G.search('jon'))
-print(G.search('jon', threshold=0.3))
-print(G.find('jose'))
+syns = wordnet.synsets("program")
 
-# ----------------------------------------------------------------------------------------------------------------------
-# Transforming items
-# ----------------------------------------------------------------------------------------------------------------------
+print(syns[0].name())
 
-def lower(s):
-	return s.lower()
-G = ngram.NGram(key=lower)
-print(G.key('AbC'))
 
-print(G.pad('abc'))
-list(G.split('abc'))
+print(syns[0].lemmas()[0].name())
+print(syns[0].definition())
+print(syns[0].examples())
 
-# ----------------------------------------------------------------------------------------------------------------------
-# Set Operations
-# ----------------------------------------------------------------------------------------------------------------------
+synonyms = []
+antonyms = []
 
-G = ngram.NGram(['joe','joseph','jon','john','sally'])
-G.update(['jonathan'])
-print(sorted(list(G)))
-print(G.discard('sally'))
-print(sorted(list(G)))
-G.difference_update(ngram.NGram(['joe']))
-print(sorted(list(G)))
-G.intersection_update(['james', 'joseph', 'joe', 'jon'])
-print(sorted(list(G)))
-G.symmetric_difference_update(ngram.NGram(['jimmy', 'jon']))
-print(sorted(list(G)))
+
+for syn in wordnet.synsets("good"):
+    for l in syn.lemmas():
+        synonyms.append(l.name())
+        if l.antonyms():
+            antonyms.append(l.antonyms()[0].name())
+
+print(set(synonyms))
+print(set(antonyms))
+
+
+w1 = wordnet.synset('ship.n.01')
+w2 = wordnet.synset('boat.n.01')
+print(w1.wup_similarity(w2))
+
+
+w1 = wordnet.synset('ship.n.01')
+w2 = wordnet.synset('car.n.01')
+print(w1.wup_similarity(w2))
+
+
+#==================================================================================
+
+from nltk.corpus import wordnet as wn
+
+wn.synsets('motorcar')
+
+
+wn.synset('car.n.01').lemma_names()
+wn.synset('car.n.02').lemma_names()
+
+
+wn.synset('car.n.01').definition()
+wn.synset('car.n.01').examples()
+
+
+#==================================================================================
+
+wn.synsets('car')
+
+
+for synset in wn.synsets('car'):
+    print(synset.lemma_names())
+
+wn.lemmas('car')

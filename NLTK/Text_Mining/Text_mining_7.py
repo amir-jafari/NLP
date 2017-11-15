@@ -8,25 +8,50 @@
 # %%%%%%%%%%%%% Text Mining %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #
 # ----------------------------------------------------------------------------------------------------------------------
-# -------------------------------Stop Words-----------------------------------------------------------------------------
+# ------------------------------- Corpora and Lexical-------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
+import nltk
+fields = nltk.corpus.gutenberg.fileids()
+print(fields)
 
-example_sent = "This is a sample sentence, showing off the stop words filtration."
 
-stop_words = set(stopwords.words('english'))
+first_text = fields[0]
+print(first_text)
+print(len(first_text))
+# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------- gutenberg-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+from nltk.corpus import gutenberg
+G_F = gutenberg.fileids()
 
-print(stop_words)
+dir(gutenberg)
+# it has raw, words and sents as method
 
-word_tokens = word_tokenize(example_sent)
+for field in G_F:
+    num_chars = len(gutenberg.raw(field))
+    num_words = len(gutenberg.words(field))
+    num_sents = len(gutenberg.sents(field))
+    num_vocab = len(set(w.lower() for w in gutenberg.words(field)))
+    print('# Chars', num_chars,'# words', num_words, '# sentens', num_sents,'# vocabs', num_vocab, '-- name of fields',  field)
 
-filtered_sentence = []
+# ----------------------------------------------------------------------------------------------------------------------
 
-for w in word_tokens:
-    if w not in stop_words:
-        filtered_sentence.append(w)
+import nltk
+from nltk.corpus import state_union
+from nltk.tokenize import PunktSentenceTokenizer
 
-print(word_tokens)
-print(filtered_sentence)
+Text1 = state_union.raw("2005-GWBush.txt")
+Text2 = state_union.raw("2006-GWBush.txt")
+
+ST = PunktSentenceTokenizer(Text1)
+
+Tok = ST.tokenize(Text1)
+
+
+for i in Tok:
+    words = nltk.word_tokenize(i)
+    tag = nltk.pos_tag(words)
+    print(tag)
+
+
