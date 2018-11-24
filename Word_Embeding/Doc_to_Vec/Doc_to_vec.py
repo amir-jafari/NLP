@@ -2,23 +2,42 @@
 # sudo pip install --ignore-installed gensim
 # sudo pip3 install --ignore-installed gensim
 # -------------------------------------------------------------------------------------
-import gensim.models as g
-import logging
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+from nltk.tokenize import word_tokenize
+from gensim.models.doc2vec import Doc2Vec
 # -------------------------------------------------------------------------------------
-vector_size = 300
-window_size = 15
-min_count = 1
-sampling_threshold = 1e-5
-negative_size = 5
-train_epoch = 100
-dm = 0
-worker_count = 1
+
+data = ["I love machine learning. Its awesome.",
+        "I love coding in python",
+        "I love building chatbots",
+        "they chat amagingly well"]
 # -------------------------------------------------------------------------------------
-pretrained_emb = "pretrained_word_embeddings.txt"
-train_corpus = "train_docs.txt"
-saved_path = "model.txt"
-logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-docs = g.doc2vec.TaggedLineDocument(train_corpus)
-model = g.Doc2Vec(docs, size=vector_size, window=window_size, min_count=min_count, sample=sampling_threshold, workers=worker_count, hs=0, dm=dm, negative=negative_size, dbow_words=1, dm_concat=1, pretrained_emb=pretrained_emb, iter=train_epoch)
+tagged_data = [TaggedDocument(words=word_tokenize(_d.lower()), tags=[str(i)]) for i, _d in enumerate(data)]
 # -------------------------------------------------------------------------------------
-model.save(saved_path)
+max_epochs = 100
+vec_size = 20
+alpha = 0.025
+# -------------------------------------------------------------------------------------
+model = Doc2Vec(size=vec_size, alpha=alpha, min_alpha=0.00025, min_count=1, dm=1)
+
+model.build_vocab(tagged_data)
+
+for epoch in range(max_epochs):
+    print('iteration {0}'.format(epoch))
+    model.train(tagged_data,
+                total_examples=model.corpus_count,
+                epochs=model.iter)
+    model.alpha -= 0.0002
+    model.min_alpha = model.alpha
+# -------------------------------------------------------------------------------------
+model.save("d2v.model")
+print("Model Saved")
+# -------------------------------------------------------------------------------------
+model= Doc2Vec.load("d2v.model")
+test_data = word_tokenize("I love chatbots".lower())
+v1 = model.infer_vector(test_data)
+print("V1_infer", v1)
+# -------------------------------------------------------------------------------------
+similar_doc = model.docvecs.most_similar('1')
+print(similar_doc)
+print(model.docvecs['1'])
