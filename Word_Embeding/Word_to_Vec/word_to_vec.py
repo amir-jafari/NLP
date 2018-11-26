@@ -3,6 +3,11 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 # -------------------------------------------------------------------------------------
+# import sys
+# log_file = open("console_output.log", "w")
+# old_stdout = sys.stdout
+# sys.stdout = log_file
+# -------------------------------------------------------------------------------------
 
 corpus = ['king is a strong man',
           'queen is a wise woman', 
@@ -37,6 +42,7 @@ for text in corpus:
 words = set(words)
 
 print(words)
+print(40*'-'+ 'end section'+40*'-')
 # -------------------------------------------------------------------------------------
 word2int = {}
 
@@ -61,7 +67,9 @@ for text in corpus:
 
 df = pd.DataFrame(data, columns = ['input', 'label'])
 print(df.head(10))
+print(40*'-'+ 'end section'+40*'-')
 print(df.shape)
+print(40*'-'+ 'end section'+40*'-')
 # -------------------------------------------------------------------------------------
 ONE_HOT_DIM = len(words)
 
@@ -100,20 +108,22 @@ train_op = tf.train.GradientDescentOptimizer(0.05).minimize(loss)
 sess = tf.Session()
 init = tf.global_variables_initializer()
 sess.run(init)
-
+print(40*'-'+ 'end section'+40*'-')
 iteration = 20000
 for i in range(iteration):
     sess.run(train_op, feed_dict={x: X_train, y_label: Y_train})
     if i % 3000 == 0:
         print('iteration '+str(i)+' loss is : ', sess.run(loss, feed_dict={x: X_train, y_label: Y_train}))
-
+print(40*'-'+ 'end section'+40*'-')
 vectors = sess.run(W1 + b1)
 print(vectors)
+print(40*'-'+ 'end section'+40*'-')
 # -------------------------------------------------------------------------------------
 w2v_df = pd.DataFrame(vectors, columns = ['x1', 'x2'])
 w2v_df['word'] = words
 w2v_df = w2v_df[['word', 'x1', 'x2']]
 print(w2v_df)
+print(40*'-'+ 'end section'+40*'-')
 # -------------------------------------------------------------------------------------
 fig, ax = plt.subplots()
 
@@ -130,3 +140,6 @@ plt.xlim(x_axis_min, x_axis_max)
 plt.ylim(y_axis_min, y_axis_max)
 plt.rcParams["figure.figsize"] = (10, 10)
 plt.show()
+# -------------------------------------------------------------------------------------
+# sys.stdout = old_stdout
+# log_file.close()
