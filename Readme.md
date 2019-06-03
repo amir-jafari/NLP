@@ -2,7 +2,7 @@
 
 ## Guide
 
-* Text mining and NLP
+* Text mining & NLP
 
 
 The following folders has all the codes needed for the course.
