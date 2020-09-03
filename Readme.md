@@ -2,11 +2,11 @@
 
 ## Guide
 
-* Text mining & NLP
+* Text mining & NLP 
 
 
 The following folders has all the codes needed for the course.
 
-* Natural Language Tool Kit (NLTK)
+* Natural Language Tool Kit (NLTK  )
 
 * NLP
