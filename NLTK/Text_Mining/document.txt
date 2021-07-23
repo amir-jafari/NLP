@@ -1,3 +1,0 @@
-This is great.
-Amir Jafari is a name. I like Python text mining.
-This is so easy and NLTK is a nice packages.
