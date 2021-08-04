@@ -1,0 +1,27 @@
+abcdefghijklmnopqurtuvwxyz
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+1234567890
+
+Ha HaHa
+
+MetaCharacters (Need to be escaped):
+. ^ $ * + ? { } [ ] \ | ( )
+
+amir.com
+
+321-555-4321
+123.555.1234
+123*555*1234
+800-555-1234
+900-555-1234
+
+Mr. Jafari
+Mr James
+Ms Davis
+Mrs. Robi
+Mr. T
+
+cat
+mat
+pat
+bat
