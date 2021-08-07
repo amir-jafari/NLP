@@ -17,6 +17,14 @@
 	4. Correcting Words
 	5. Custom Copra	
 	6. Part of Speech Tagging
+
+3. Natural Language Toolkit(spaCy)
+	1. Installation
+	2. Core Operations 
+	3. Lingustic Features
+	4. Rule Based Matching 
+	5. Entities
+	6. Matcher
 			
 		
 		
