@@ -34,6 +34,7 @@ print(20*'-' + 'End Q2' + 20*'-')
 # Class_Ex3:
 # Write a function that reads the Story text and finds the strings in the curly brackets.
 # Note: You are allowed to use the strings methods
+# Copy a text from wiki and add some curly bracket in the text call the string Story.
 # ----------------------------------------------------------------
 print(20*'-' + 'Begin Q3' + 20*'-')
 
