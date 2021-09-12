@@ -96,7 +96,13 @@ print(20*'-' + 'End Q6' + 20*'-')
 # Class_Ex7:
 # Write a function that create a text file where all letters of English alphabet
 # put together by number of letters on each line (use n as argument in the function).
-#
+# Sample output
+# function(3)
+# ABC
+# DEF
+# ...
+# ...
+# ...
 # ----------------------------------------------------------------
 print(20*'-' + 'Begin Q7' + 20*'-')
 
