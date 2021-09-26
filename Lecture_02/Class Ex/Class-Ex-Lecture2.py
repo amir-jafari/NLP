@@ -228,8 +228,9 @@ print(20*'-' + 'Begin Q13' + 20*'-')
 print(20*'-' + 'End Q13' + 20*'-')
 # =================================================================
 # Class_Ex14:
-# Train a bigram tagger with no backoff tagger, and run it on some of the training data.
-# Next, run it on some new data. What happens to the performance of the tagger? Why?
+# Use the brown tagged sentes corpus news.
+# make a test and train sentences and then  use bigram tagger to train it.
+# Then evlaute the trained model.
 # ----------------------------------------------------------------
 print(20*'-' + 'Begin Q14' + 20*'-')
 
