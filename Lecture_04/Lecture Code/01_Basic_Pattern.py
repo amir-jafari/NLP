@@ -22,7 +22,7 @@ for match in matches:
     print(match)
 # ----------------------------
 print(20 * '-' + 'Search an string' + 20 * '-' )
-pattern4 = re.compile(r'coreyms\.com')
+pattern4 = re.compile(r'amir\.com')
 matches = pattern4.finditer(text)
 for match in matches:
     print(match)
