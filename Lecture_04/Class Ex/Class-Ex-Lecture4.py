@@ -104,7 +104,7 @@ print(20*'-' + 'End Q6' + 20*'-')
 # https://en.wikipedia.org/wiki/Natural_language_processing
 # Find the tag which related to the text. Extract all the textual data.
 # Tokenize the cleaned text file.
-# print the len of the corpus and pint couple of th esenetences.
+# print the len of the corpus and pint couple of the sentences.
 # Calculate the words frequencies.
 # ----------------------------------------------------------------
 print(20*'-' + 'Begin Q7' + 20*'-')
@@ -122,7 +122,7 @@ print(20*'-' + 'End Q7' + 20*'-')
 # Class_Ex8:
 # Grab any text from Wikipedia and create a string of 3 sentences.
 # Use that string and calculate the ngram of 1 from nltk package.
-# Use BOW method and compare the most 3 common owrds.
+# Use BOW method and compare the most 3 common words.
 # ----------------------------------------------------------------
 print(20*'-' + 'Begin Q8' + 20*'-')
 
@@ -139,13 +139,13 @@ print(20*'-' + 'Begin Q8' + 20*'-')
 print(20*'-' + 'End Q8' + 20*'-')
 # =================================================================
 # Class_Ex9:
-# USe sklearn package and load 20 newsgroups dataset.
 # Write a python script that accepts any string and do the following.
 # 1- Tokenize the text
-# 2- Doe word extraction and clean a text. USe regular expression to clean a text.
+# 2- Doe word extraction and clean a text. Use regular expression to clean a text.
 # 3- Generate BOW
-# 4- Vectorize all the tokens.
-# 5- The only package tou can use is numpy and re.
+# 4- Vectorized all the tokens.
+# 5- The only package you can use is numpy and re.
+# all sentences = ["sentence1", "sentence2", "sentence3",...]
 # ----------------------------------------------------------------
 print(20*'-' + 'Begin Q9' + 20*'-')
 
@@ -193,7 +193,7 @@ print(20*'-' + 'End Q10' + 20*'-')
 # Parse function which tokenize the words lower cases them and count them. Use dictionary; keys are the tokens and value is count.
 # Clac function that calculate SVD.
 # TFIDF function
-# Print function which print out the TFIDF matrix, first 3 columns of the U matrix an irst 3 rows of the Vt matrix
+# Print function which print out the TFIDF matrix, first 3 columns of the U matrix and first 3 rows of the Vt matrix
 # ----------------------------------------------------------------
 print(20*'-' + 'Begin Q11' + 20*'-')
 
@@ -225,38 +225,11 @@ print(20*'-' + 'Begin Q12' + 20*'-')
 
 print(20*'-' + 'End Q12' + 20*'-')
 # =================================================================
-# Class_Ex13:
-#
-# ----------------------------------------------------------------
-print(20*'-' + 'Begin Q13' + 20*'-')
 
 
 
 
 
-
-
-
-
-print(20*'-' + 'End Q13' + 20*'-')
-# =================================================================
-# Class_Ex14:
-#
-
-# ----------------------------------------------------------------
-print(20*'-' + 'Begin Q14' + 20*'-')
-
-
-
-
-
-
-
-
-
-print(20*'-' + 'End Q14' + 20*'-')
-
-# =================================================================
 
 
 
