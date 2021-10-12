@@ -4,7 +4,7 @@
 # Find the conditional probability of Char given the Occurrence.
 # ----------------------------------------------------------------
 print(20*'-' + 'Begin Q1' + 20*'-')
-
+df = pd.DataFrame({'Char':['f', 'b', 'f', 'b','f', 'b', 'f', 'f'], 'Occurance':['o1', 'o1', 'o2', 'o3','o2', 'o2', 'o1', 'o3'], 'C':np.random.randn(8), 'D':np.random.randn(8)})
 
 
 
@@ -23,7 +23,9 @@ print(20*'-' + 'End Q1' + 20*'-')
 # ----------------------------------------------------------------
 print(20*'-' + 'Begin Q2' + 20*'-')
 
-
+df1 = pd.DataFrame({'Word': ['Good', 'Bad', 'Awesome', 'Beautiful', 'Terrible', 'Horrible'],
+                     'Occurrence': ['One', 'Two', 'One', 'Three', 'One', 'Two'],
+                     'sentiment': ['P', 'N', 'P', 'P', 'N', 'N'],})
 
 
 
