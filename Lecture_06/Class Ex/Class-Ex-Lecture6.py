@@ -2,7 +2,7 @@
 # Class_Ex1:
 # Lets consider the 2 following senteces
 # Sentence 1: I  am excited about the perceptron network.
-# Sentence 1: we will not test the classifier with real data.
+# Sentence 2: we will not test the classifier with real data.
 # Design your bag of words set and create your input set.
 # Choose your BOW words that suits perceptron network.
 # Design your classes that Sent 1 has positive sentiment and sent 2 has a negative sentiment.
