@@ -216,11 +216,16 @@ def Ex_11() -> None:
                 yield file
 
     def solve(path) -> None:
-        print(f"These are are the directories in the path: {[x[0] for x in os.walk(path)]}\n")
+        dir_list:List[str] = []
+        for all in os.listdir(path):
+            if os.path.isdir(all):
+                dir_list.append(all)
+        print(f"These are all the directories in the path: {dir_list}")
         file_list:List[str] = []
         for file in files_gen(path):
             file_list.append(file)
         print(f"These are all the files in the path: {file_list}")
+        print(f"These are all the directories and files in the path: {os.listdir(path)}")
 
     def main() -> None:
         path:str
@@ -235,32 +240,38 @@ def Ex_11() -> None:
 # Class_Ex12:
 # Write a script that create a file and write a specific text in it and rename the file name.
 # ----------------------------------------------------------------
-print(20*'-' + 'Begin Q12' + 20*'-')
+
+def Ex_12() -> None:
+
+    import os
+    def solve(text:str, name:str) -> None:
+        with open("Exercise_12.txt", "w") as file:
+            file.write(text)
+        os.rename("Exercise_12.txt", name)
+    def main() -> None:
+        text:str = input("What is the text you want to write into the file: ")
+        name:str = input("What do you want to rename the filename to: ")
+        if name.find(".txt"):
+            name = name + ".txt"
+        solve(text, name)
+
+    main()
 
 
 
-
-
-
-
-
-
-print(20*'-' + 'End Q12' + 20*'-')
 # =================================================================
 # Class_Ex13:
 #  Write a script  that scan a specified directory find which is  file and which is a directory.
 # ----------------------------------------------------------------
-print(20*'-' + 'Begin Q13' + 20*'-')    
+
+
+                                                  # what's the difference between this and 11
 
 
 
 
 
 
-
-
-
-print(20*'-' + 'End Q13' + 20*'-')
 # =================================================================
 # Class_Ex14:
 #
@@ -331,13 +342,21 @@ def main() -> None:
     # Ex_9()
     # print(20*'-' + 'End Q9' + 20*'-')
 
-    print(20*'-' + 'Begin Q10' + 20*'-')
+    # print(20*'-' + 'Begin Q10' + 20*'-')
 
-    print(20*'-' + 'End Q10' + 20*'-')
+    # print(20*'-' + 'End Q10' + 20*'-')
 
-    print(20*'-' + 'Begin Q11' + 20*'-')
-    Ex_11()
-    print(20*'-' + 'End Q11' + 20*'-')
+    # print(20*'-' + 'Begin Q11' + 20*'-')
+    # Ex_11()
+    # print(20*'-' + 'End Q11' + 20*'-')
+
+    # print(20*'-' + 'Begin Q12' + 20*'-')
+    # Ex_12()
+    # print(20*'-' + 'End Q12' + 20*'-')
+
+    print(20*'-' + 'Begin Q13' + 20*'-')    
+
+    print(20*'-' + 'End Q13' + 20*'-')
 
 if __name__ == "__main__":
     main()
