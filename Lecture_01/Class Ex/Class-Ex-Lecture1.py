@@ -3,8 +3,8 @@
 # Write a function that prints all the chars from string1 that appears in string2.
 # Note: Just use the Strings functionality no packages should be used.
 # ----------------------------------------------------------------
-from itertools import islice
-from typing import Generator, List, Set
+from typing import Generator, List, Set, Deque
+
 
 
 
@@ -195,12 +195,19 @@ def Ex_9() -> None:                                         # what does it mean
 # ----------------------------------------------------------------
 
 
-
-
-
-
-
-
+def Ex_10() -> None:
+    from collections import deque
+    def solve(int_deq:Deque[int], index:int) -> None:
+        i:int = 0
+        while i< index:
+            int_deq.popleft()
+            i += 1
+        print(int_deq)
+    def main() -> None:
+        int_deq:Deque[int] = deque(map(int, input("What are the intergers: ").split()))
+        index:int = int(input("What is the index: "))
+        solve(int_deq, index)
+    main()
 
 # =================================================================
 # Class_Ex11:
@@ -273,47 +280,18 @@ def Ex_12() -> None:
 
 
 
-# =================================================================
-# Class_Ex14:
-#
-# ----------------------------------------------------------------
-print(20*'-' + 'Begin Q14' + 20*'-')
-
-
-
-
-
-
-
-
-print(20*'-' + 'End Q14' + 20*'-')
-
-# =================================================================
-# Class_Ex15:
-#
-# ----------------------------------------------------------------
-print(20*'-' + 'Begin Q15' + 20*'-')
-
-
-
-
-
-
-
-
-print(20*'-' + 'End Q15' + 20*'-')
 
 # =================================================================
 # main function
 
 def main() -> None:
-    # print(20*'-' + 'Begin Q1' + 20*'-')
-    # Ex_1()
-    # print(20*'-' + 'End Q1' + 20*'-')
+    print(20*'-' + 'Begin Q1' + 20*'-')
+    Ex_1()
+    print(20*'-' + 'End Q1' + 20*'-')
 
-    # print(20*'-' + 'Begin Q2' + 20*'-')
-    # Ex_2()
-    # print(20*'-' + 'End Q2' + 20*'-')
+    print(20*'-' + 'Begin Q2' + 20*'-')
+    Ex_2()
+    print(20*'-' + 'End Q2' + 20*'-')
 
     # print(20*'-' + 'Begin Q3' + 20*'-')
     # Ex_3()
@@ -323,40 +301,40 @@ def main() -> None:
     Ex_4()
     print(20*'-' + 'End Q4' + 20*'-')
 
-    # print(20*'-' + 'Begin Q5' + 20*'-') 
-    # Ex_5()
-    # print(20*'-' + 'End Q5' + 20*'-')
+    print(20*'-' + 'Begin Q5' + 20*'-') 
+    Ex_5()
+    print(20*'-' + 'End Q5' + 20*'-')
 
-    # print(20*'-' + 'Begin Q6' + 20*'-')
-    # Ex_6()
-    # print(20*'-' + 'End Q6' + 20*'-')
+    print(20*'-' + 'Begin Q6' + 20*'-')
+    Ex_6()
+    print(20*'-' + 'End Q6' + 20*'-')
 
-    # print(20*'-' + 'Begin Q7' + 20*'-')
-    # Ex_7()
-    # print(20*'-' + 'End Q7' + 20*'-')
+    print(20*'-' + 'Begin Q7' + 20*'-')
+    Ex_7()
+    print(20*'-' + 'End Q7' + 20*'-')
 
-    # print(20*'-' + 'Begin Q8' + 20*'-')
-    # Ex_8()
-    # print(20*'-' + 'End Q8' + 20*'-')
+    print(20*'-' + 'Begin Q8' + 20*'-')
+    Ex_8()
+    print(20*'-' + 'End Q8' + 20*'-')
 
     # print(20*'-' + 'Begin Q9' + 20*'-')
     # Ex_9()
     # print(20*'-' + 'End Q9' + 20*'-')
 
-    # print(20*'-' + 'Begin Q10' + 20*'-')
+    print(20*'-' + 'Begin Q10' + 20*'-')
+    Ex_10()
+    print(20*'-' + 'End Q10' + 20*'-')
 
-    # print(20*'-' + 'End Q10' + 20*'-')
+    print(20*'-' + 'Begin Q11' + 20*'-')
+    Ex_11()
+    print(20*'-' + 'End Q11' + 20*'-')
 
-    # print(20*'-' + 'Begin Q11' + 20*'-')
-    # Ex_11()
-    # print(20*'-' + 'End Q11' + 20*'-')
-
-    # print(20*'-' + 'Begin Q12' + 20*'-')
-    # Ex_12()
-    # print(20*'-' + 'End Q12' + 20*'-')
+    print(20*'-' + 'Begin Q12' + 20*'-')
+    Ex_12()
+    print(20*'-' + 'End Q12' + 20*'-')
 
     # print(20*'-' + 'Begin Q13' + 20*'-')    
-
+    
     # print(20*'-' + 'End Q13' + 20*'-')
 
 if __name__ == "__main__":
