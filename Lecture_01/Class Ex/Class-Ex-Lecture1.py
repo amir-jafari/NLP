@@ -38,7 +38,11 @@ def Ex_2() -> None:
     def solve(str_1:str) -> None:
         str_1_alnum:List[str] = [e for e in str_1 if e.isalnum()]
         char:str = input("what is the character you want to calculate: ")
-        print(f"\nCharacter '{char}' has appeared {str_1_alnum.count(char)} times in '{str_1}'.")
+        if char in str_1_alnum:
+            print(f"\nCharacter '{char}' has appeared {str_1_alnum.count(char)} times in '{str_1}'.")
+        else:
+            char = input(f"{char} is not in the string please reenter a character: ")
+            print(f"\nCharacter '{char}' has appeared {str_1_alnum.count(char)} times in '{str_1}'.")
 
     def main() -> None:
         str_1:str = input("What is the string: ")
@@ -75,6 +79,11 @@ def Ex_4() -> None:
 
     def solve(num:int) -> None:
         with open("test_1.txt", "r") as file:
+            lines:int = len(file.readlines())
+            file.seek(0)
+            if num > lines:
+                num = int(input(f"\nThere are only {lines} lines in the file, please reenter: "))
+            print(f"\nThe {num} lines are: ")
             for i in range(num):
                 line = next(file).strip()
                 print(line)
