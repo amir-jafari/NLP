@@ -56,7 +56,7 @@ def Hw_3() -> None:
         print(f"Your initials are: {name_lst[0][0] + name_lst[1][0] + name_lst[2][0]}")
 
     def main() -> None:
-        name:str = input("What is your name: ")
+        name:str = input("What is your full name (including middle name): ")
         solve(name)
 
     main()    
@@ -109,7 +109,8 @@ def Hw_5() -> None:
         d:DefaultDict = collections.defaultdict(int)
         for c in string:
             d[c] += 1
-        d.pop(" ")
+        if d.get(" "):
+            d.pop(" ")
 
         print(d)
 
@@ -129,8 +130,7 @@ def Hw_5() -> None:
 def Hw_6() -> None:
 
     def solve(string:str) -> None:
-        list(map("".join, itertools.product(*zip(string.upper(), string.lower()))))
-
+        print(list(map("".join, itertools.product(*zip(string.upper(), string.lower())))))
     def main() -> None:
         string:str = input("What is the string: ")
         solve(string)
@@ -146,33 +146,81 @@ def Hw_6() -> None:
 # Hint: first create a test.txt file and dump some textual data in it. Then test your code.
 # ----------------------------------------------------------------
 
+def Hw_7() -> None:
+
+    def solve(text:str, num:int) -> None:
+        with open("test.txt", "w") as file:
+            file.write(text)
+        with open("test.txt", "r") as file:
+            lines:int = len(file.readlines())
+            file.seek(0)
+            if num > lines:
+                num = int(input(f"\nThere are only {lines} lines in the file, please reenter: "))
+            print(f"\nThe {num} lines are: ")
+            for i in range(num):
+                line = next(file).strip()
+                print(line)
+            file.seek(0)
+            max_word:str = ""
+            for line in file:
+                line_strip:str = line.strip()
+                if len(max_word) < len(line_strip):
+                    max_word = line_strip
+            print(f"\nThe longest word is {max_word}")
+            print(f"\nThere are {lines} lines in the file.")
+            d:DefaultDict = collections.defaultdict(int)
+            file.seek(0)
+            for line in file:
+                d[line.strip()] += 1
+            print(f"\nFrequency of wordss are {d}")
+
+
+    
+    def main() -> None:
+        lines = []
+        print("What do you want to write into a file")
+        while True:
+            line = input()
+            if line:
+                lines.append(line)
+            else:
+                break
+        text = '\n'.join(lines)
+        num:int = int(input("How many lines do you want to read: "))
+        solve(text, num)
+    
+    main()
 # =================================================================
 # main function
 
 def main() -> None:
-    # print(20*'-' + 'Begin Q1' + 20*'-')
-    # Hw_1()
-    # print(20*'-' + 'End Q1' + 20*'-')
+    print(20*'-' + 'Begin Q1' + 20*'-')
+    Hw_1()
+    print(20*'-' + 'End Q1' + 20*'-')
 
-    # print(20*'-' + 'Begin Q2' + 20*'-')
-    # Hw_2()
-    # print(20*'-' + 'End Q2' + 20*'-')
+    print(20*'-' + 'Begin Q2' + 20*'-')
+    Hw_2()
+    print(20*'-' + 'End Q2' + 20*'-')
 
-    # print(20*'-' + 'Begin Q3' + 20*'-')
-    # Hw_3()
-    # print(20*'-' + 'End Q3' + 20*'-')
+    print(20*'-' + 'Begin Q3' + 20*'-')
+    Hw_3()
+    print(20*'-' + 'End Q3' + 20*'-')
     
-    # print(20*'-' + 'Begin Q4' + 20*'-')
-    # Hw_4()
-    # print(20*'-' + 'End Q4' + 20*'-')
+    print(20*'-' + 'Begin Q4' + 20*'-')
+    Hw_4()
+    print(20*'-' + 'End Q4' + 20*'-')
     
-    # print(20*'-' + 'Begin Q5' + 20*'-')
-    # Hw_5()
-    # print(20*'-' + 'End Q5' + 20*'-')
+    print(20*'-' + 'Begin Q5' + 20*'-')
+    Hw_5()
+    print(20*'-' + 'End Q5' + 20*'-')
     
     print(20*'-' + 'Begin Q6' + 20*'-')
     Hw_6()
     print(20*'-' + 'End Q6' + 20*'-')
+    
+    print(20*'-' + 'Begin Q7' + 20*'-')
+    Hw_7()
+    print(20*'-' + 'End Q7' + 20*'-')
 
 if __name__ == "__main__":
     main()
