@@ -1,4 +1,4 @@
-from nltk.book import *
+from nltk.book import text1
 import nltk
 
 print(text1.vocab())
