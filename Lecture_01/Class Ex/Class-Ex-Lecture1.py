@@ -52,7 +52,7 @@ def Ex_2() -> None:
 # Note: You are allowed to use the strings methods
 # Copy a text from wiki and add some curly bracket in the text call the string Story.
 # ----------------------------------------------------------------
-
+                                                # what does this question mean
 def Ex_3() -> None:
 
     def solve() -> None:
@@ -75,7 +75,8 @@ def Ex_4() -> None:
 
     def solve(num:int) -> None:
         with open("test_1.txt", "r") as file:
-            for line in islice(file, num):
+            for i in range(num):
+                line = next(file).strip()
                 print(line)
 
     def main() -> None:
@@ -318,9 +319,9 @@ def main() -> None:
     # Ex_3()
     # print(20*'-' + 'End Q3' + 20*'-')
 
-    # print(20*'-' + 'Begin Q4' + 20*'-')
-    # Ex_4()
-    # print(20*'-' + 'End Q4' + 20*'-')
+    print(20*'-' + 'Begin Q4' + 20*'-')
+    Ex_4()
+    print(20*'-' + 'End Q4' + 20*'-')
 
     # print(20*'-' + 'Begin Q5' + 20*'-') 
     # Ex_5()
@@ -354,9 +355,9 @@ def main() -> None:
     # Ex_12()
     # print(20*'-' + 'End Q12' + 20*'-')
 
-    print(20*'-' + 'Begin Q13' + 20*'-')    
+    # print(20*'-' + 'Begin Q13' + 20*'-')    
 
-    print(20*'-' + 'End Q13' + 20*'-')
+    # print(20*'-' + 'End Q13' + 20*'-')
 
 if __name__ == "__main__":
     main()
