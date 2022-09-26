@@ -9,7 +9,6 @@ print(text4[0:len(text4)])
 
 print(set(text4))
 print(sorted(set(text4)))
-print(sorted(set(text4)))
 print(len(set(text4)))
 
 T1_diversity = float(len(set(text1))) / float(len(text1))
