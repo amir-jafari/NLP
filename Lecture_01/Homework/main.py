@@ -194,29 +194,29 @@ def Hw_7() -> None:
 # main function
 
 def main() -> None:
-    print(20*'-' + 'Begin Q1' + 20*'-')
-    Hw_1()
-    print(20*'-' + 'End Q1' + 20*'-')
+    # print(20*'-' + 'Begin Q1' + 20*'-')
+    # Hw_1()
+    # print(20*'-' + 'End Q1' + 20*'-')
 
-    print(20*'-' + 'Begin Q2' + 20*'-')
-    Hw_2()
-    print(20*'-' + 'End Q2' + 20*'-')
+    # print(20*'-' + 'Begin Q2' + 20*'-')
+    # Hw_2()
+    # print(20*'-' + 'End Q2' + 20*'-')
 
-    print(20*'-' + 'Begin Q3' + 20*'-')
-    Hw_3()
-    print(20*'-' + 'End Q3' + 20*'-')
+    # print(20*'-' + 'Begin Q3' + 20*'-')
+    # Hw_3()
+    # print(20*'-' + 'End Q3' + 20*'-')
     
-    print(20*'-' + 'Begin Q4' + 20*'-')
-    Hw_4()
-    print(20*'-' + 'End Q4' + 20*'-')
+    # print(20*'-' + 'Begin Q4' + 20*'-')
+    # Hw_4()
+    # print(20*'-' + 'End Q4' + 20*'-')
     
-    print(20*'-' + 'Begin Q5' + 20*'-')
-    Hw_5()
-    print(20*'-' + 'End Q5' + 20*'-')
+    # print(20*'-' + 'Begin Q5' + 20*'-')
+    # Hw_5()
+    # print(20*'-' + 'End Q5' + 20*'-')
     
-    print(20*'-' + 'Begin Q6' + 20*'-')
-    Hw_6()
-    print(20*'-' + 'End Q6' + 20*'-')
+    # print(20*'-' + 'Begin Q6' + 20*'-')
+    # Hw_6()
+    # print(20*'-' + 'End Q6' + 20*'-')
     
     print(20*'-' + 'Begin Q7' + 20*'-')
     Hw_7()
