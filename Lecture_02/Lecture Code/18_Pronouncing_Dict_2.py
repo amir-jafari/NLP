@@ -19,3 +19,11 @@ prondict = nltk.corpus.cmudict.dict()
 prondict['blog'] = [['B', 'L', 'AA1', 'G']]
 print(prondict['blog'])
 
+
+list_1 = []
+list_2 = []
+for w, pron in entries:
+    if (for phone in pron:
+            for char in phone:
+                if char.isdigit():
+                    list_2.append(char)):          

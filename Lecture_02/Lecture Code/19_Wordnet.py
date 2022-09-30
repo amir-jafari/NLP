@@ -19,3 +19,4 @@ print(motorcar.hypernyms())
 paths = motorcar.hypernym_paths()
 print([synset.name() for synset in paths[0]])
 print([synset.name() for synset in paths[1]])
+

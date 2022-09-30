@@ -11,3 +11,4 @@ chatroom = nps_chat.posts('10-19-20s_706posts.xml')
 print(chatroom[123])
 
 text2 = nps_chat.raw('11-09-teens_706posts.xml')
+print(text2[:50])

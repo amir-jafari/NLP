@@ -12,7 +12,6 @@ lancaster = nltk.LancasterStemmer()
 print([porter.stem(t) for t in tokens])
 print( [lancaster.stem(t) for t in tokens])
 
-porter = nltk.PorterStemmer()
 grail = nltk.corpus.webtext.words('grail.txt')
 text = Text(grail)
 text.concordance('lie')

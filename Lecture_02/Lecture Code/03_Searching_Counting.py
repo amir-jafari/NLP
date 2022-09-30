@@ -2,7 +2,7 @@ from nltk.book import text1
 from nltk.book import text4
 from nltk.book import text6
 
-print(text1.concordance("monstrous"))
+print(text1.concordance("mo nstrous"))
 print(text1.similar("monstrous"))
 print(text1.collocations())
 text4.dispersion_plot(["citizens", "democracy", "freedom", "duties", "America"])
