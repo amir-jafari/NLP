@@ -2,7 +2,7 @@ import spacy
 from spacy.matcher import PhraseMatcher
 
 nlp = spacy.load("en_core_web_sm")
-matcher = PhraseMatcher(nlp.vocab)
+matcher = PhraseMatcher(nlp.vocab)  # type: ignore
 
 pattern = nlp("Golden Car")
 matcher.add("CAR", [pattern])

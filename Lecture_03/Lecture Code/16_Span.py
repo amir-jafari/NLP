@@ -8,4 +8,5 @@ spaces = [True, False, False]
 doc = Doc(nlp.vocab, words=words, spaces=spaces)
 span = Span(doc, 0, 2)
 span_with_label = Span(doc, 0, 2, label="GREETING")
-doc.ents = [span_with_label]; print(doc.ents)
+doc.ents = [span_with_label]  # type: ignore
+print(doc.ents)

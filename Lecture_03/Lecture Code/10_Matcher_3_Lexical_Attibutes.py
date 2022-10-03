@@ -1,8 +1,9 @@
+from typing import Dict, List, Union
 import spacy
 from spacy.matcher import Matcher
 nlp = spacy.load("en_core_web_sm")
 matcher = Matcher(nlp.vocab)
-pattern = [{"IS_DIGIT": True}, {"LOWER": "fifa"}, {"LOWER": "world"},
+pattern:List[Dict[str, Union[str, bool]]] = [{"IS_DIGIT": True}, {"LOWER": "fifa"}, {"LOWER": "world"},
            {"LOWER": "cup"},  {"IS_PUNCT": True}]
 
 matcher.add("FIFA", [pattern])

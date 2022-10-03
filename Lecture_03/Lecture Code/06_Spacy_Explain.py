@@ -1,5 +1,5 @@
-import spacy
+import spacy.glossary as glossary
 
-print(spacy.explain("GPE"))
-print(spacy.explain("NNP"))
-print(spacy.explain("dobj"))
+print(glossary.explain("NNP"))
+print(glossary.explain("GPE"))
+print(glossary.explain("dobj"))
