@@ -1,8 +1,8 @@
 import sys
 import spacy
-nlp = spacy.load("en_core_web_sm")
 
 def main() -> int:
+    nlp = spacy.load("en_core_web_sm") 
     
     return 0
 
