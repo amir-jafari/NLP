@@ -75,8 +75,8 @@ valid_data = TensorDataset(torch.from_numpy(x_test_pad), torch.from_numpy(y_test
 
 batch_size = 10
 
-train_loader = DataLoader(train_data, shuffle=True, batch_size=batch_size)
-valid_loader = DataLoader(valid_data, shuffle=True, batch_size=batch_size)
+train_loader = DataLoader(train_data, shuffle=True, batch_size=batch_size, drop_last = True)
+valid_loader = DataLoader(valid_data, shuffle=True, batch_size=batch_size, drop_last = True)
 
 
 class SentimentRNN(nn.Module):
@@ -96,7 +96,7 @@ class SentimentRNN(nn.Module):
 
     def forward(self, x, hidden):
         batch_size = x.size(0)
-        embeds = self.embedding(x) 
+        embeds = self.embedding(x)
         lstm_out, hidden = self.lstm(embeds, hidden)
         lstm_out = lstm_out.contiguous().view(-1, self.hidden_dim)
         out = self.dropout(lstm_out)
@@ -113,7 +113,7 @@ class SentimentRNN(nn.Module):
         return hidden
 
 no_layers = 2
-vocab_size = len(vocab) + 1
+vocab_size = len(vocab) +1
 embedding_dim = 64
 output_dim = 1
 hidden_dim = 256
