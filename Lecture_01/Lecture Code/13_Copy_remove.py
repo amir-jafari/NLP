@@ -6,8 +6,8 @@ shutil.rmtree('new_test_dir')
 os.mkdir('test')
 shutil.copytree('test', 'test1')
 
-os.system('python 01_Strings.py')
-subprocess.call('python 01_Strings.py', shell=True)
+os.system('python3 01_Strings.py')
+subprocess.call('python3 01_Strings.py', shell=True)
 
 path = os.path.join(os.getcwd(), 'test')
 print(path)
