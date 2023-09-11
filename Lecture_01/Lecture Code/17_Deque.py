@@ -13,6 +13,6 @@ deq.popleft()
 print(deq)
 print(deq.clear())
 
-list = ["a","b","c"]
+list = ["a", "b", "c"]
 deq = deque(list)
 print(deq.count("a"))
