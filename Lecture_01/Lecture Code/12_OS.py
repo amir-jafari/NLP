@@ -3,7 +3,7 @@ os.mkdir('test_dir')
 
 orig_dir = os.getcwd()
 print(orig_dir)
-os.chdir(orig_dir + "\\\\" + 'test_dir')
+os.chdir(orig_dir + os. sep+ 'test_dir')
 new_dir = os.getcwd()
 print(new_dir)
 os.chdir(orig_dir)

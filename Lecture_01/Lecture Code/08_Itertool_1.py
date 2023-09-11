@@ -8,7 +8,7 @@ for each in result:
     print(each)
 print(operator.mul(1,9))
 print(operator.pow(2,4))
-print(help(operator))
+# print(help(operator))
 
 result = itertools.combinations(states, 2)
 for each in result:
