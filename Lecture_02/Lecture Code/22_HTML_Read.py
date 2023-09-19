@@ -10,6 +10,6 @@ print(html[:60])
 
 raw = BeautifulSoup(html, 'html.parser').get_text()
 tokens = word_tokenize(raw); print(tokens)
-print(tokens = tokens[110:390])
+print(tokens[110:390] )
 text = nltk.Text(tokens); print(text)
 print(text.concordance('gene'))
