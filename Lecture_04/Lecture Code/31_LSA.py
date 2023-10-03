@@ -13,7 +13,7 @@ X =vectorizer.fit_transform(doc_complete)
 from sklearn.decomposition import TruncatedSVD
 lsa = TruncatedSVD(n_components=2,n_iter=100)
 lsa.fit(X)
-terms = vectorizer.get_feature_names()
+terms = vectorizer.get_feature_names_out()
 
 for i,comp in enumerate(lsa.components_):
     termsInComp = zip(terms,comp)

@@ -1,3 +1,3 @@
-sentence ='Thomas Jefferson began building Monticello at theage of 26.'
+sentence ='Thomas Jefferson began building Monticello at the age of 26.'
 print(sentence.split())
 print(str.split(sentence))

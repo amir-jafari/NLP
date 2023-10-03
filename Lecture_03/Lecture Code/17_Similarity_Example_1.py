@@ -1,9 +1,9 @@
 # python -m spacy download en_core_web_md
 import spacy
-nlp = spacy.load("en_core_web_md")
+nlp = spacy.load("en_core_web_lg")
 
 
-doc1 = nlp("I like fast food")
+doc1 = nlp("I like nlp class")
 doc2 = nlp("I like pizza")
 print(doc1.similarity(doc2))
 
