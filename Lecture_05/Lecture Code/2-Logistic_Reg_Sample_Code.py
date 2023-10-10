@@ -1,10 +1,7 @@
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import Pipeline
 from sklearn import metrics
-import numpy as np
-
 '''
 The 20 Newsgroups data set is a collection of approximately 20,000 newsgroup documents, 
 partitioned (nearly) evenly across 20 different newsgroups. To the best of our knowledge, 
