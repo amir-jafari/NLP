@@ -46,7 +46,28 @@ print(20 * '-' + 'End Q2' + 20 * '-')
 # ----------------------------------------------------------------
 print(20 * '-' + 'Begin Q2_1' + 20 * '-')
 
+class Perceptron:
+    def __init__(self, learning_rate=0.01, n_iters=1000):
+        self.lr = learning_rate
+        self.n_iters = n_iters
+        self.weights = None
+        self.bias = None
 
+    def fit(self, X, y):
+        # TO DO
+
+    def predict(self, X):
+        # TO DO
+        return
+
+
+# Sample training data
+X_train = np.array([
+    "I loved this movie, it was so much fun!",
+    "The food at this restaurant is not good. Don't go there!",
+    "The new iPhone looks amazing, can't wait to get my hands on it."
+])
+y_train = np.array([1, -1, 1])
 
 
 
