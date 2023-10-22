@@ -19,7 +19,40 @@ print(20 * '-' + 'End Q1' + 20 * '-')
 # ----------------------------------------------------------------
 print(20 * '-' + 'Begin Q2' + 20 * '-')
 
+
+
+
+
 print(20 * '-' + 'End Q2' + 20 * '-')
+
+# =================================================================
+# Class_Ex2_1:
+
+# For preprocessing, the text data is vectorized into feature vectors using a bag-of-words approach.
+# Each sentence is converted into a vector where each element represents the frequency of a word from the vocabulary.
+# This allows the textual data to be fed into the perceptron model.
+
+# The training data consists of sample text sentences and corresponding sentiment labels (positive or negative).
+# The text is vectorized and used to train the Perceptron model to associate words with positive/negative sentiment.
+
+# For making predictions, new text input is vectorized using the same vocabulary. Then the Perceptron model makes a
+# binary prediction on whether the new text has positive or negative sentiment.
+# The output is based on whether the dot product of the input vector with the trained weight vectors is positive
+# or negative.
+
+# This provides a simple perceptron model for binary sentiment classification on textual data. The vectorization
+# allows text to be converted into numerical features that the perceptron model can process. Overall,
+# it demonstrates how a perceptron can be used for an NLP text classification task.
+# ----------------------------------------------------------------
+print(20 * '-' + 'Begin Q2_1' + 20 * '-')
+
+
+
+
+
+
+print(20 * '-' + 'End Q2_1' + 20 * '-')
+
 # =================================================================
 # Class_Ex3:
 # The following function is given
@@ -30,7 +63,12 @@ print(20 * '-' + 'End Q2' + 20 * '-')
 # ----------------------------------------------------------------
 print(20 * '-' + 'Begin Q3' + 20 * '-')
 
+
+
+
+
 print(20 * '-' + 'End Q3' + 20 * '-')
+
 # =================================================================
 # Class_Ex4:
 # Use the following corpus of data
@@ -58,6 +96,10 @@ print(20 * '-' + 'End Q4' + 20 * '-')
 
 # ----------------------------------------------------------------
 print(20 * '-' + 'Begin Q5' + 20 * '-')
+
+
+
+
 
 print(20 * '-' + 'End Q5' + 20 * '-')
 # =================================================================
