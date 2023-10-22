@@ -45,6 +45,7 @@ print(20 * '-' + 'End Q2' + 20 * '-')
 # it demonstrates how a perceptron can be used for an NLP text classification task.
 # ----------------------------------------------------------------
 print(20 * '-' + 'Begin Q2_1' + 20 * '-')
+import numpy as np
 
 class Perceptron:
     def __init__(self, learning_rate=0.01, n_iters=1000):
@@ -54,10 +55,10 @@ class Perceptron:
         self.bias = None
 
     def fit(self, X, y):
-        # TO DO
+        print('TO DO')
 
     def predict(self, X):
-        # TO DO
+        print('TO DO')
         return
 
 
@@ -123,4 +124,34 @@ print(20 * '-' + 'Begin Q5' + 20 * '-')
 
 
 print(20 * '-' + 'End Q5' + 20 * '-')
+# =================================================================
+# Class_Ex6:
+
+# Follow the below instruction for writing the auto encoder code.
+
+#The code implements a basic autoencoder model to learn word vector representations (word2vec style embeddings).
+# It takes sentences of words as input and maps each word to an index in a vocabulary dictionary.
+
+#The model has an encoder portion which converts word indexes into a low dimensional embedding via a learned weight
+# matrix W1. This embedding is fed through another weight matrix W2 to a hidden layer.
+
+#The decoder portion maps the hidden representation back to the original word index space via weight matrix W3.
+
+#The model is trained to reconstruct the original word indexes from the hidden embedding by minimizing the
+# reconstruction loss using backpropagation.
+
+#After training, the weight matrix W1 contains the word embeddings that map words in the vocabulary to dense
+# vector representations. These learned embeddings encode semantic meaning and can be used as features for
+# downstream NLP tasks.
+
+
+# ----------------------------------------------------------------
+print(20 * '-' + 'Begin Q6' + 20 * '-')
+
+
+
+
+
+print(20 * '-' + 'End Q6' + 20 * '-')
+
 # =================================================================
