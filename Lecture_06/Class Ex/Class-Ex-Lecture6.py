@@ -35,7 +35,8 @@ print(20 * '-' + 'End Q3' + 20 * '-')
 # Class_Ex4:
 # Use the following corpus of data
 # sent1 : 'This is a sentence one, and I want to all data here.',
-# sent2 :  'Natural language processing has nice tools for text mining and text classification. I need to work hard and try a lot of exericses.',
+# sent2 :  'Natural language processing has nice tools for text mining and text classification.
+#           I need to work hard and try a lot of exercises.',
 # sent3 :  'Ohhhhhh what',
 # sent4 :  'I am not sure what I am doing here.',
 # sent5 :  'Neural Network is a power method. It is a very flexible architecture'
