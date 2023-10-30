@@ -155,3 +155,22 @@ print(20 * '-' + 'Begin Q6' + 20 * '-')
 print(20 * '-' + 'End Q6' + 20 * '-')
 
 # =================================================================
+# Class_Ex7:
+#
+# The objective of this exercise to show the inner workings of Word2Vec in python using numpy.
+# Do not be using any other libraries for that.
+# We are not looking at efficient implementation, the purpose here is to understand the mechanism
+# behind it. You can find the official paper here. https://arxiv.org/pdf/1301.3781.pdf
+# The main component of your code should be the followings:
+# Set your hyper-parameters
+# Data Preparation (Read text file)
+# Generate training data (indexing to an integer and the onehot encoding )
+# Forward and backward steps of the autoencoder network
+# Calculate the error
+# look at error at by varying hidden dimensions and window size
+# ----------------------------------------------------------------
+print(20 * '-' + 'Begin Q7' + 20 * '-')
+
+
+
+print(20 * '-' + 'End Q7' + 20 * '-')
