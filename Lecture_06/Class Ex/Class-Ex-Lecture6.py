@@ -101,7 +101,7 @@ print(20 * '-' + 'End Q3' + 20 * '-')
 # sent4 :  'I am not sure what I am doing here.',
 # sent5 :  'Neural Network is a power method. It is a very flexible architecture'
 
-# Train ADALINE network to find  a relationship between POS (just verbs and nouns) and the the length of the sentences.
+# Train ADALINE network to find  a relationship between POS (just verbs and nouns) and the length of the sentences.
 # ----------------------------------------------------------------
 print(20 * '-' + 'Begin Q4' + 20 * '-')
 
