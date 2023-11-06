@@ -53,8 +53,7 @@ def tockenize(x_train, y_train, x_val, y_val):
 
     encoded_train = [1 if label == 'positive' else 0 for label in y_train]
     encoded_test = [1 if label == 'positive' else 0 for label in y_val]
-    return np.array(final_list_train), np.array(encoded_train), np.array(final_list_test), np.array(
-        encoded_test), onehot_dict
+    return final_list_train, encoded_train, final_list_test,   encoded_test, onehot_dict
 
 x_train,y_train,x_test,y_test,vocab = tockenize(x_train,y_train,x_test,y_test)
 
@@ -69,8 +68,8 @@ x_train_pad = padding_(x_train,200)
 x_test_pad = padding_(x_test,200)
 
 
-train_data = TensorDataset(torch.from_numpy(x_train_pad), torch.from_numpy(y_train))
-valid_data = TensorDataset(torch.from_numpy(x_test_pad), torch.from_numpy(y_test))
+train_data = TensorDataset(torch.from_numpy(np.array(x_train_pad)), torch.from_numpy(np.array(y_train)))
+valid_data = TensorDataset(torch.from_numpy(np.array(x_test_pad)), torch.from_numpy(np.array(y_test)))
 
 
 batch_size = 10
