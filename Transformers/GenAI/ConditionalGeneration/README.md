@@ -1,0 +1,11 @@
+# Conditional Generation with T5ForConditionalGeneration
+- run the **create_dataset** file first
+  - the dataset is same as what your created for seq2seq task.
+- train_condi_gen.py
+  - contains the training process with Trainer.
+- train_classic_condi_gen.py
+  - contains the training process with classic training which you could debug with the gradients.
+- inference_condi_gen.py
+  - contains the inference for the conditional generation.
+- utils.py
+  - contains the dataloader, tokenizer and model. Changes needed if you want change the model.

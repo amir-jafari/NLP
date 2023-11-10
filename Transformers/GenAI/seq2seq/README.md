@@ -1,0 +1,11 @@
+# Text Generation with AutoModelForSeq2SeqLM, t5-base model
+- run the **create_dataset** file first
+  - the dataset is same as what your created for conditional generation task, it will autoextract some words in the context as keywords.
+- train_seq2seq.py
+  - contains the training process with Trainer.
+- train_classic_seq2seq.py
+  - contains the training process with classic training which you could debug with the gradients.
+- inference_seq2seq.py
+  - contains the inference for the text generation.
+- utils.py
+  - contains the dataloader, tokenizer and model. Changes needed if you want change the model.

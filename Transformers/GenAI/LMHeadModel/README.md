@@ -1,0 +1,11 @@
+# Text Generation with LMHeadModel
+- run the **create_dataset** file first
+  - the dataset is same as what your created for CausalLM task.
+- train_text_generation.py
+  - contains the training process with Trainer.
+- train_classic_text_generation.py
+  - contains the training process with classic training which you could debug with the gradients.
+- inference_text_generation.py
+  - contains the inference for the text generation.
+- utils.py
+  - contains the dataloader, tokenizer and model. Changes needed if you want change the model.
