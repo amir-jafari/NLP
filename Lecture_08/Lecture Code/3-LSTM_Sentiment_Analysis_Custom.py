@@ -129,7 +129,7 @@ def acc(pred,label):
     return torch.sum(pred == label.squeeze()).item()
 
 clip = 5
-epochs = 5
+epochs = 50
 valid_loss_min = np.Inf
 epoch_tr_loss, epoch_vl_loss = [], []
 epoch_tr_acc, epoch_vl_acc = [], []
