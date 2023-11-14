@@ -1,6 +1,6 @@
 from transformers import pipeline
 summarizer = pipeline("summarization")
-summarizer("""
+print(summarizer("""
     America has changed dramatically during recent years. Not only has the number of 
     graduates in traditional engineering disciplines such as mechanical, civil, 
     electrical, chemical, and aeronautical engineering declined, but in most of 
@@ -18,4 +18,4 @@ summarizer("""
     six and eight times as many traditional engineers as does the United States. 
     Other industrial countries at minimum maintain their output, while America 
     suffers an increasingly serious decline in the number of engineering graduates 
-    and a lack of well-educated engineers.""",max_length= 100)
+    and a lack of well-educated engineers.""",max_length= 100))
