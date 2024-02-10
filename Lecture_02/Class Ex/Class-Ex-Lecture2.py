@@ -122,8 +122,8 @@ print(20 * '-' + 'End Q12' + 20 * '-')
 # =================================================================
 # Class_Ex13:
 # Write code to access a  webpage and extract some text from it.
-# For example, access a weather site and extract  a feels like temprature..
-# Note use the following site https://darksky.net/forecast/40.7127,-74.0059/us12/en
+# For example, access a weather site and extract  a feels like temperature.
+# Note use the following site https://support.apple.com/en-us/102594
 # ----------------------------------------------------------------
 print(20 * '-' + 'Begin Q13' + 20 * '-')
 
