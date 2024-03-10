@@ -40,6 +40,7 @@ print(LABEL.vocab.stoi)
 
 
 
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 train_iterator, valid_iterator, test_iterator = data.BucketIterator.splits(
