@@ -132,4 +132,55 @@ print(20 * '-' + 'Begin Q14' + 20 * '-')
 
 print(20 * '-' + 'End Q14' + 20 * '-')
 
+
+# =================================================================
+# Class_Ex15:
+# Write a function that checks a string contains only a certain set of characters
+# (all chars lower and upper case with all digits).
+# ----------------------------------------------------------------
+print(20 * '-' + 'Begin Q15' + 20 * '-')
+
+print(20 * '-' + 'End Q15' + 20 * '-')
+
+# =================================================================
+# Class_Ex16:
+# Write a function that matches a string in which a followed by zero or more b's.
+# Sample String 'ac', 'abc', abbc'
+# ----------------------------------------------------------------
+print(20 * '-' + 'Begin Q16' + 20 * '-')
+
+print(20 * '-' + 'End Q16' + 20 * '-')
+# =================================================================
+# Class_Ex17:
+# Write Python script to find numbers between 1 and 3 in a given string.
+
+# ----------------------------------------------------------------
+print(20 * '-' + 'Begin Q17' + 20 * '-')
+
+print(20 * '-' + 'End Q17' + 20 * '-')
+# =================================================================
+# Class_Ex18:
+# Write a Python script to find the position of the substrings within a string.
+# text = 'Python exercises, JAVA exercises, C exercises'
+# ----------------------------------------------------------------
+print(20 * '-' + 'Begin Q18' + 20 * '-')
+
+print(20 * '-' + 'End Q18' + 20 * '-')
+# =================================================================
+# Class_Ex19:
+# Write a Python script to find if two strings from a list starting with letter 'C'.
+# words = ["Cython CHP", "Java JavaScript", "PERL S+"]
+# ----------------------------------------------------------------
+print(20 * '-' + 'Begin Q19' + 20 * '-')
+
+print(20 * '-' + 'End Q19' + 20 * '-')
+
+# =================================================================
+# Class_Ex20:
+# Write a Python script to remove everything except chars and digits from a string.
+# USe sub method
+# ----------------------------------------------------------------
+print(20 * '-' + 'Begin Q20' + 20 * '-')
+
+print(20 * '-' + 'End Q20' + 20 * '-')
 # =================================================================
