@@ -1,4 +1,3 @@
-
 import boto3
 from botocore.exceptions import ClientError
 import json
@@ -27,8 +26,8 @@ session = boto3.Session(
 bedrock_client = session.client("bedrock-runtime", region_name="us-east-1")
 
 # Set the model ID, e.g., Titan Text Premier.
-# model_id = "anthropic.claude-3-5-sonnet-20240620-v1:0"
-model_id = "meta.llama3-70b-instruct-v1:0"
+model_id = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+# model_id = "meta.llama3-70b-instruct-v1:0"
 
 content = "What is the capital of france?"
 
