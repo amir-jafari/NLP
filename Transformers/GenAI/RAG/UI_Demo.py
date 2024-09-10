@@ -9,6 +9,10 @@ import faiss
 import os
 import nltk
 
+with st.sidebar:
+    NoChunks =st.slider('No Chunks', value=10, step=1, min_value=1, max_value=100, format='%d')
+    top_k = st.slider('Top K', value=10, step=1, min_value=1, max_value=100, format='%d')
+
 # Load configuration
 def load_configuration():
     load_dotenv()
@@ -57,7 +61,7 @@ def load_pdf(file):
 
 
 # Split text into chunks
-def chunk_text(text, chunk_size=2):
+def chunk_text(text, chunk_size=10):
     sentences = nltk.sent_tokenize(text)
     chunks = [' '.join(sentences[i:i + chunk_size]) for i in range(0, len(sentences), chunk_size)]
     return chunks
@@ -83,7 +87,7 @@ def create_faiss_index(vectors):
 
 
 # Query the index and retrieve relevant chunks
-def query_index(index, query_vector, chunks, top_k=3):
+def query_index(index, query_vector, chunks, top_k=10):
     distances, indices = index.search(np.array([query_vector]), top_k)
     return [chunks[i] for i in indices[0]]
 
@@ -132,7 +136,7 @@ def ask_question(query, chunks, bedrock_client, embedding_model_id, lm_model_id,
 
 
 def main():
-    st.title("Document Question Answering App")
+    st.title("Knowledge Assistant Retrival Tool (KART) :shopping_trolley:")
 
     # Upload PDF file
     uploaded_file = st.file_uploader("Upload a PDF file", type="pdf")
@@ -144,7 +148,7 @@ def main():
         # Process the uploaded PDF
         with st.spinner("Processing the PDF..."):
             pdf_text = load_pdf(uploaded_file)
-            chunks = chunk_text(pdf_text)
+            chunks = chunk_text(pdf_text, chunk_size=NoChunks)
 
             # Set the model ID for embedding and language models
             embedding_model_id = "amazon.titan-embed-text-v2:0"

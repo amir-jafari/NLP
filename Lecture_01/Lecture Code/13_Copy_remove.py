@@ -3,7 +3,7 @@ import os
 import subprocess
 shutil.rmtree('new_test_dir')
 
-os.mkdir('test')
+os.makedirs('test', exist_ok=True)
 shutil.copytree('test', 'test1')
 
 os.system('python3 01_Strings.py')
