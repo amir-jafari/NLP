@@ -2,12 +2,19 @@ from nltk.book import text1
 from nltk.book import text4
 from nltk import FreqDist
 import nltk
+import matplotlib.pyplot as plt
+
 Freq_Dist = FreqDist(text1)
 print(Freq_Dist)
 print(Freq_Dist.most_common(10))
 print(Freq_Dist['his'])
+
 Freq_Dist.plot(50, cumulative = False)
+plt.show()
+
 Freq_Dist.plot(50, cumulative = True)
+plt.show()
+
 Freq_Dist.hapaxes()
 Once_happend= Freq_Dist.hapaxes() ; print(Once_happend)
 print(text4.count('america') / float(len(text4) * 100))
