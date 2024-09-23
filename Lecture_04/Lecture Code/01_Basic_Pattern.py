@@ -9,7 +9,7 @@ for match in matches:
     print(match)
 print(text[0:3])
 # ----------------------------
-print(20 * '-' + 'dot menas any chars except new line' + 20 * '-' )
+print(20 * '-' + 'dot means any chars except new line' + 20 * '-' )
 pattern2 = re.compile(r'.')
 matches = pattern2.finditer(text)
 for match in matches:
