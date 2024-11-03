@@ -45,7 +45,7 @@ print("Values: x * w_value")
 V=np.matmul(x,w_value)
 print(V)
 # ----------------------------------------------------------------------------------------------------------------------
-print("Step 4: Scaled Attention Scores")
+print("Step 4: Scaled Seq2Seq Scores")
 k_d=1
 attention_scores = (Q @ K.transpose())/k_d
 print(attention_scores)
@@ -62,16 +62,16 @@ print("Step 6: attention value obtained by score1/k_d * V")
 print(V[0])
 print(V[1])
 print(V[2])
-print("Attention 1")
+print("Seq2Seq 1")
 attention1=attention_scores[0].reshape(-1,1)
 attention1=attention_scores[0][0]*V[0]
 print(attention1)
 
-print("Attention 2")
+print("Seq2Seq 2")
 attention2=attention_scores[0][1]*V[1]
 print(attention2)
 
-print("Attention 3")
+print("Seq2Seq 3")
 attention3=attention_scores[0][2]*V[2]
 print(attention3)
 # ----------------------------------------------------------------------------------------------------------------------
