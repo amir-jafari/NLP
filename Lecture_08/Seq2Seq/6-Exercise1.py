@@ -2,7 +2,7 @@
 Neural Machine Translation Exercise Template
 Students should complete all TODO sections
 """
-
+# %% ------------------------------------------------------------------------------------------------------------
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -10,11 +10,12 @@ from torch.utils.data import Dataset, DataLoader
 import random
 import numpy as np
 from collections import Counter
-
+# %% ------------------------------------------------------------------------------------------------------------
 # Set random seeds for reproducibility
 torch.manual_seed(42)
 np.random.seed(42)
 random.seed(42)
+# %% ------------------------------------------------------------------------------------------------------------
 
 # Sample parallel corpus (English-Spanish pairs)
 parallel_corpus = [
@@ -23,6 +24,7 @@ parallel_corpus = [
     ("good morning", "buenos días"),
     # Add more pairs as needed
 ]
+# %% ------------------------------------------------------------------------------------------------------------
 
 class Vocabulary:
     def __init__(self):
@@ -53,6 +55,7 @@ class Vocabulary:
         # 2. Handle special tokens
         # 3. Join words into sentence
         pass
+# %% ------------------------------------------------------------------------------------------------------------
 
 class TranslationDataset(Dataset):
     def __init__(self, corpus, src_vocab, trg_vocab, max_length=10):
@@ -69,6 +72,7 @@ class TranslationDataset(Dataset):
         # 2. Convert to indices
         # 3. Return as tensors
         pass
+# %% ------------------------------------------------------------------------------------------------------------
 
 class Attention(nn.Module):
     def __init__(self, hidden_dim):
@@ -82,6 +86,7 @@ class Attention(nn.Module):
         # 2. Apply softmax to get attention weights
         # 3. Create and return context vector
         pass
+# %% ------------------------------------------------------------------------------------------------------------
 
 class Encoder(nn.Module):
     def __init__(self, vocab_size, embedding_dim, hidden_dim, dropout):
@@ -95,6 +100,7 @@ class Encoder(nn.Module):
         # 2. Pass through RNN
         # 3. Process hidden state
         pass
+# %% ------------------------------------------------------------------------------------------------------------
 
 class Decoder(nn.Module):
     def __init__(self, vocab_size, embedding_dim, hidden_dim, dropout):
@@ -109,6 +115,7 @@ class Decoder(nn.Module):
         # 3. Create RNN input
         # 4. Generate output
         pass
+# %% ------------------------------------------------------------------------------------------------------------
 
 class Seq2Seq(nn.Module):
     def __init__(self, encoder, decoder, device):
@@ -123,6 +130,7 @@ class Seq2Seq(nn.Module):
         # 3. Get encoder outputs
         # 4. Teacher forcing loop
         pass
+# %% ------------------------------------------------------------------------------------------------------------
 
 def train(model, iterator, optimizer, criterion, clip, device):
     # TODO: Implement training loop
@@ -131,6 +139,7 @@ def train(model, iterator, optimizer, criterion, clip, device):
     # 3. Process batches
     # 4. Implement gradient clipping
     pass
+# %% ------------------------------------------------------------------------------------------------------------
 
 def evaluate(model, iterator, criterion, device):
     # TODO: Implement evaluation loop
@@ -138,6 +147,7 @@ def evaluate(model, iterator, criterion, device):
     # 2. Disable gradient calculation
     # 3. Calculate loss on batches
     pass
+# %% ------------------------------------------------------------------------------------------------------------
 
 def translate_sentence(model, sentence, src_vocab, trg_vocab, device, max_length=10):
     # TODO: Implement translation function
@@ -146,6 +156,7 @@ def translate_sentence(model, sentence, src_vocab, trg_vocab, device, max_length
     # 3. Generate translation
     # 4. Convert output to sentence
     pass
+# %% ------------------------------------------------------------------------------------------------------------
 
 def main():
     # Hyperparameters
