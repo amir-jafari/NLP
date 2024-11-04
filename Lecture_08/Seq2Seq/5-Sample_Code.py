@@ -7,9 +7,7 @@ import numpy as np
 torch.manual_seed(42)
 np.random.seed(42)
 random.seed(42)
-
 # %% ------------------------------------------------------------------------------------------------------------
-
 SRC_VOCAB_SIZE = 10  # Size of the source vocabulary
 TRG_VOCAB_SIZE = 10  # Size of the target vocabulary
 EMB_DIM = 8          # Embedding dimension
@@ -20,13 +18,11 @@ TEACHER_FORCING_RATIO = 0.5
 LEARNING_RATE = 0.001
 
 # %% ------------------------------------------------------------------------------------------------------------
-
 def generate_dummy_data(num_samples=100, max_length=5):
     src = torch.randint(1, SRC_VOCAB_SIZE, (num_samples, max_length))
     trg = torch.randint(1, TRG_VOCAB_SIZE, (num_samples, max_length))
     return src, trg
 # %% ------------------------------------------------------------------------------------------------------------
-
 def create_batches(src_data, trg_data, batch_size):
     num_samples = len(src_data)
     for i in range(0, num_samples, batch_size):
@@ -65,7 +61,6 @@ class Encoder(nn.Module):
         outputs, hidden = self.rnn(embedded)  # outputs: (batch_size, src_len, hidden_dim)
         return outputs, hidden.squeeze(0)
 # %% ------------------------------------------------------------------------------------------------------------
-
 class Decoder(nn.Module):
     def __init__(self, output_dim, emb_dim, hidden_dim):
         super(Decoder, self).__init__()
@@ -114,7 +109,6 @@ class Seq2Seq(nn.Module):
         return outputs
 
 # %% ------------------------------------------------------------------------------------------------------------
-
 def train_epoch(model, data_iterator, optimizer, criterion, clip=1.0):
     model.train()
     epoch_loss = 0
@@ -160,7 +154,6 @@ train_src, train_trg = generate_dummy_data(num_samples=1000)
 valid_src, valid_trg = generate_dummy_data(num_samples=100)
 best_valid_loss = float('inf')
 # %% ------------------------------------------------------------------------------------------------------------
-
 for epoch in range(N_EPOCHS):
     train_iterator = create_batches(train_src, train_trg, BATCH_SIZE)
     valid_iterator = create_batches(valid_src, valid_trg, BATCH_SIZE)
