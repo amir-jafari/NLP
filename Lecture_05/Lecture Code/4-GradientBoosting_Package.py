@@ -1,39 +1,51 @@
 # -------------------------------------------------------------
-# Gradient Boosting using scikit-learn
+# Gradient Boosting using scikit-learn on 20 Newsgroups
 # -------------------------------------------------------------
-
 import numpy as np
-from sklearn.datasets import load_diabetes
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.metrics import mean_squared_error
+from sklearn.datasets import fetch_20newsgroups
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.metrics import classification_report, confusion_matrix
 
+# 1. Choose categories for classification (4-class problem)
+categories = ['alt.atheism', 'soc.religion.christian',
+              'comp.graphics', 'sci.med']
 
-data = load_diabetes()
-X, y = data.data, data.target
+# 2. Load train/test data
+train_data = fetch_20newsgroups(subset='train', categories=categories,
+                                shuffle=True, random_state=42)
+test_data  = fetch_20newsgroups(subset='test',  categories=categories,
+                                shuffle=True, random_state=42)
 
+# 3. TF–IDF Vectorization
+tfidf = TfidfVectorizer()
+tfidf.fit(train_data.data)
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.3, random_state=42
-)
+X_train = tfidf.transform(train_data.data)
+y_train = train_data.target
 
+X_test  = tfidf.transform(test_data.data)
+y_test  = test_data.target
 
-model = GradientBoostingRegressor(
+# 4. Define & Fit Gradient Boosting Classifier
+model = GradientBoostingClassifier(
     n_estimators=100,
     learning_rate=0.1,
     max_depth=3,
     random_state=42
 )
-
 model.fit(X_train, y_train)
 
-# 4. Evaluate
+# 5. Evaluate
 y_train_pred = model.predict(X_train)
-y_test_pred = model.predict(X_test)
+y_test_pred  = model.predict(X_test)
 
-train_mse = mean_squared_error(y_train, y_train_pred)
-test_mse = mean_squared_error(y_test, y_test_pred)
+print("Gradient Boosting (Classification) on 20 Newsgroups (4 categories):")
+print("Training Classification Report:")
+print(classification_report(y_train, y_train_pred, target_names=train_data.target_names))
 
-print("Gradient Boosting with scikit-learn on Diabetes dataset:")
-print(f"Train MSE: {train_mse:.3f}")
-print(f"Test  MSE: {test_mse:.3f}")
+print("Test Classification Report:")
+print(classification_report(y_test, y_test_pred, target_names=test_data.target_names))
+
+print("Test Confusion Matrix:")
+print(confusion_matrix(y_test, y_test_pred))
