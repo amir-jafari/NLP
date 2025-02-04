@@ -1,5 +1,6 @@
 from nltk import word_tokenize
 from nltk import Text
+import matplotlib.pyplot as plt
 
 f = open('Corpus.txt')
 raw = f.read()
@@ -9,4 +10,6 @@ for line in f:
 
 words_token = word_tokenize(raw)
 text = Text(words_token)
+plt.figure(1,figsize=(4,2))
 text.dispersion_plot(['corpus'])
+plt.show()
