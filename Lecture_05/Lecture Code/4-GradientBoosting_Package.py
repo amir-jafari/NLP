@@ -7,17 +7,17 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import classification_report, confusion_matrix
 
-# 1. Choose categories for classification (4-class problem)
+
 categories = ['alt.atheism', 'soc.religion.christian',
               'comp.graphics', 'sci.med']
 
-# 2. Load train/test data
+
 train_data = fetch_20newsgroups(subset='train', categories=categories,
                                 shuffle=True, random_state=42)
 test_data  = fetch_20newsgroups(subset='test',  categories=categories,
                                 shuffle=True, random_state=42)
 
-# 3. TF–IDF Vectorization
+
 tfidf = TfidfVectorizer()
 tfidf.fit(train_data.data)
 
@@ -27,7 +27,6 @@ y_train = train_data.target
 X_test  = tfidf.transform(test_data.data)
 y_test  = test_data.target
 
-# 4. Define & Fit Gradient Boosting Classifier
 model = GradientBoostingClassifier(
     n_estimators=100,
     learning_rate=0.1,
@@ -36,7 +35,7 @@ model = GradientBoostingClassifier(
 )
 model.fit(X_train, y_train)
 
-# 5. Evaluate
+
 y_train_pred = model.predict(X_train)
 y_test_pred  = model.predict(X_test)
 

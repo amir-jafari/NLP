@@ -48,7 +48,6 @@ class XGBoostStump:
         grad : array of shape (n_samples,) -- (p_i - y_i) for logistic loss
         hess : array of shape (n_samples,) -- p_i * (1 - p_i)
         """
-        # Convert to dense if sparse
         if hasattr(X, "toarray"):
             X = X.toarray()
 
@@ -58,24 +57,18 @@ class XGBoostStump:
 
         best_gain = float("-inf")
 
-        # If we do not split at all, we have one leaf weight:
-        # w* = -G / (H + lambda).
-        # We'll store that as our "no-split" baseline.
         self.feature_index_ = None
         self.threshold_ = None
         best_weight_no_split = - G_total / (H_total + self.reg_lambda)
         self.weight_left_ = best_weight_no_split
         self.weight_right_ = 0.0
 
-        # Brute-force over features & possible thresholds
         for feat_idx in range(n_features):
             feature_values = X[:, feat_idx]
             unique_vals = np.unique(feature_values)
 
             for thr in unique_vals:
-                # Left side: X[feat_idx] <= thr
                 left_mask = (feature_values <= thr)
-                # Right side: X[feat_idx] > thr
                 right_mask = ~left_mask
 
                 G_left = np.sum(grad[left_mask])
@@ -105,10 +98,9 @@ class XGBoostStump:
         We'll add this shift to the existing model's log-odds.
         """
         if self.feature_index_ is None:
-            # No split found, return single weight for all
             return np.full(X.shape[0], self.weight_left_)
 
-        # Convert to dense if sparse
+
         if hasattr(X, "toarray"):
             X = X.toarray()
 
@@ -152,11 +144,10 @@ class XGBoostBinaryClassifierScratch:
         y_mean = np.clip(np.mean(y), eps, 1 - eps)
         self.init_pred_ = np.log(y_mean / (1 - y_mean))
 
-        # Current predictions (log-odds)
+
         preds = np.full(X.shape[0], self.init_pred_)
 
         for _ in range(self.n_estimators):
-            # Compute gradient and hessian for logistic loss
             p = self._sigmoid(preds)         # predicted probability
             grad = (p - y)                   # first derivative
             hess = p * (1.0 - p)            # second derivative
@@ -164,19 +155,13 @@ class XGBoostBinaryClassifierScratch:
             stump = XGBoostStump(reg_lambda=self.reg_lambda)
             stump.fit(X, grad, hess)
 
-            # Update log-odds with stump output
             update = stump.predict(X)
             preds += self.learning_rate * update
 
             self.stumps_.append(stump)
 
     def predict_proba(self, X):
-        """
-        Predict probability of class 1.
-        """
-        # Start from initial log-odds
         if hasattr(X, "toarray"):
-            # We'll repeatedly convert to avoid mismatch in predictions
             X_dense = X.toarray()
         else:
             X_dense = X
@@ -188,9 +173,6 @@ class XGBoostBinaryClassifierScratch:
         return self._sigmoid(log_odds)
 
     def predict(self, X):
-        """
-        Return binary class predictions {0,1}.
-        """
         probs = self.predict_proba(X)
         return (probs >= 0.5).astype(int)
 
@@ -199,16 +181,13 @@ class XGBoostBinaryClassifierScratch:
 # Demo on 20 Newsgroups (Binary Classification)
 ###############################################################################
 def main():
-    # We'll limit to two classes for this from-scratch approach:
-    #    0 -> alt.atheism, 1 -> soc.religion.christian
-    # Handling 4+ classes from scratch is much more complex.
     categories = ['alt.atheism', 'soc.religion.christian']
     train_data = fetch_20newsgroups(subset='train', categories=categories,
                                     shuffle=True, random_state=42)
     test_data = fetch_20newsgroups(subset='test', categories=categories,
                                    shuffle=True, random_state=42)
 
-    # Vectorize text into TF–IDF features
+
     tfidf = TfidfVectorizer()
     tfidf.fit(train_data.data)
     X_train = tfidf.transform(train_data.data)
@@ -220,7 +199,6 @@ def main():
     print(f"Training samples: {X_train.shape}, Testing samples: {X_test.shape}")
     print("Labels:", np.unique(y_train), categories)
 
-    # Train our from-scratch XGBoost classifier
     clf = XGBoostBinaryClassifierScratch(
         n_estimators=5,     # small number of boosting rounds
         reg_lambda=1.0,     # L2 regularization
@@ -228,7 +206,7 @@ def main():
     )
     clf.fit(X_train, y_train)
 
-    # Evaluate
+
     y_pred_train = clf.predict(X_train)
     y_pred_test  = clf.predict(X_test)
 
