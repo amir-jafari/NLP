@@ -10,6 +10,11 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import classification_report
 
+
+#----------------------------------------------------------------------
+# If it shows no dataset called 'diabetes.csv', try to use the absolute
+# path, and remember to include 'r'
+#----------------------------------------------------------------------
 diabetes_data = pd.read_csv('diabetes.csv')
 
 # Separate Features and Target Variables
@@ -61,6 +66,33 @@ explainer = LimeTabularExplainer(X_train.values, feature_names =
                                  mode = 'classification')
 
 #%%
+# Pick the first row from the test set
+instance_index = 0
+instance_data = X_test.iloc[instance_index].values
+
+# Generate the explanation
+explanation = explainer.explain_instance(
+    data_row=instance_data,
+    predict_fn=rf_clf.predict_proba,
+    num_features=5  # how many features you'd like in the explanation
+)
+
+# Print the explanation in text form
+print("LIME Explanation for instance", instance_index)
+for feature, weight in explanation.as_list():
+    print(feature, weight)
+
+
+explanation.show_in_notebook(show_table=True)
+
+
+import matplotlib.pyplot as plt
+plt.figure()
+explanation.as_pyplot_figure()
+plt.show()
+
+
+#%%
 # ---------------------------------------------------------------------
 # SHAP
 # ---------------------------------------------------------------------
@@ -82,12 +114,14 @@ shap.initjs()
 # Create the explainer
 explainer = shap.TreeExplainer(rf_clf)
 
+# 4. Compute shap_values using the same X_test that the model sees
 shap_values = explainer.shap_values(X_test)
 
-# Variable Importance with Summary Plot
-print("Variable Importance Plot - Global Interpretation")
-figure = plt.figure()
-shap.summary_plot(shap_values, X_test)
+# 5. Show summary plots
+#    shap_values is typically a list of arrays for multi-class. Use shap_values for global overview across classes.
+shap.summary_plot(shap_values, X_test)  # for all classes combined (SHAP 0.39+)
+plt.show()
 
-# Summary Plot on a Specific Label
+# or for a specific class (class index 1):
 shap.summary_plot(shap_values[1], X_test)
+plt.show()
