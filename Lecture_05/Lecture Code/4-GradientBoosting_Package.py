@@ -28,9 +28,9 @@ X_test  = tfidf.transform(test_data.data)
 y_test  = test_data.target
 
 model = GradientBoostingClassifier(
-    n_estimators=100,
-    learning_rate=0.1,
-    max_depth=3,
+    n_estimators=10,
+    learning_rate=0.01,
+    max_depth=2,
     random_state=42
 )
 model.fit(X_train, y_train)
