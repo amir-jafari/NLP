@@ -1,46 +1,27 @@
 # ---------------------------------------------------------------------
-# Build Classifier
+# 1. DATASET & MODEL
 # ---------------------------------------------------------------------
-
-#%%
-# Load useful libraries
 import pandas as pd
+from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import cross_val_score
 from sklearn.metrics import classification_report
 
+data = load_breast_cancer()
+X = pd.DataFrame(data.data, columns=data.feature_names)
+y = pd.Series(data.target, name='Outcome')
 
-#----------------------------------------------------------------------
-# If it shows no dataset called 'diabetes.csv', try to use the absolute
-# path, and remember to include 'r'
-#----------------------------------------------------------------------
-diabetes_data = pd.read_csv('diabetes.csv')
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, stratify=y, random_state=13
+)
 
-# Separate Features and Target Variables
-X = diabetes_data.drop(columns='Outcome')
-y = diabetes_data['Outcome']
-
-# Create Train & Test Data
-X_train, X_test, y_train, y_test = train_test_split(X, y,test_size=0.3,
-                                                	stratify =y,
-                                                	random_state = 13)
-
-# Build the model
-rf_clf = RandomForestClassifier(max_features=2, n_estimators =100 ,bootstrap = True)
-
+rf_clf = RandomForestClassifier(n_estimators=50, max_features=2, bootstrap=True, random_state=42)
 rf_clf.fit(X_train, y_train)
-
-# Make prediction on the testing data
 y_pred = rf_clf.predict(X_test)
+print(classification_report(y_test, y_pred))
 
-# Classification Report
-print(classification_report(y_pred, y_test))
-
-
-#%%
 # ---------------------------------------------------------------------
-# LIME
+# 2. LIME
 # ---------------------------------------------------------------------
 
 # ---------------------------------------------------------------------
@@ -50,51 +31,34 @@ print(classification_report(y_pred, y_test))
 # conda install lime
 # ---------------------------------------------------------------------
 
-# Import the LimeTabularExplainer module
 from lime.lime_tabular import LimeTabularExplainer
 
-# Get the class names
-class_names = ['Has diabetes', 'No diabetes']
-
-# Get the feature names
-feature_names = list(X_train.columns)
-
-# Fit the Explainer on the training data set using the LimeTabularExplainer
-explainer = LimeTabularExplainer(X_train.values, feature_names =
-                                 feature_names,
-                                 class_names = class_names,
-                                 mode = 'classification')
-
-#%%
-# Pick the first row from the test set
-instance_index = 0
-instance_data = X_test.iloc[instance_index].values
-
-# Generate the explanation
-explanation = explainer.explain_instance(
-    data_row=instance_data,
-    predict_fn=rf_clf.predict_proba,
-    num_features=5  # how many features you'd like in the explanation
+class_names = ['Class 0', 'Class 1']
+feature_names = X_train.columns.tolist()
+X_train_small = X_train.sample(n=100, random_state=42)
+explainer = LimeTabularExplainer(
+    training_data=X_train_small.values,
+    feature_names=feature_names,
+    class_names=class_names,
+    mode='classification'
 )
 
-# Print the explanation in text form
-print("LIME Explanation for instance", instance_index)
-for feature, weight in explanation.as_list():
-    print(feature, weight)
+instance_index = 0
+one_row_df = X_test.iloc[[instance_index]]
+explanation = explainer.explain_instance(
+    data_row=one_row_df.values[0],
+    predict_fn=rf_clf.predict_proba,
+    num_features=5
+)
 
+print("LIME Explanation for instance", instance_index)
+for feat, weight in explanation.as_list():
+    print(feat, weight)
 
 explanation.show_in_notebook(show_table=True)
 
-
-import matplotlib.pyplot as plt
-plt.figure()
-explanation.as_pyplot_figure()
-plt.show()
-
-
-#%%
 # ---------------------------------------------------------------------
-# SHAP
+# 3. SHAP (use smaller subset of X_test)
 # ---------------------------------------------------------------------
 
 # ---------------------------------------------------------------------
@@ -104,24 +68,14 @@ plt.show()
 # conda install shap
 # ---------------------------------------------------------------------
 
-
 import shap
-import matplotlib.pyplot as plt
-
-# load JS visualization code
 shap.initjs()
+explainer_shap = shap.TreeExplainer(rf_clf)
+X_test_sample = X_test.sample(n=50, random_state=42)
+shap_values = explainer_shap.shap_values(X_test_sample)
 
-# Create the explainer
-explainer = shap.TreeExplainer(rf_clf)
-
-# 4. Compute shap_values using the same X_test that the model sees
-shap_values = explainer.shap_values(X_test)
-
-# 5. Show summary plots
-#    shap_values is typically a list of arrays for multi-class. Use shap_values for global overview across classes.
-shap.summary_plot(shap_values, X_test)  # for all classes combined (SHAP 0.39+)
-plt.show()
-
-# or for a specific class (class index 1):
-shap.summary_plot(shap_values[1], X_test)
-plt.show()
+if isinstance(shap_values, list):
+    shap.summary_plot(shap_values[0], X_test_sample)
+    shap.summary_plot(shap_values[1], X_test_sample)
+else:
+    shap.summary_plot(shap_values, X_test_sample)
