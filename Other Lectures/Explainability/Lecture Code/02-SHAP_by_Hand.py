@@ -1,62 +1,96 @@
 import numpy as np
 
-# Sigmoid function, this is our "black-box" model
 def sigmoid(z):
     return 1.0 / (1.0 + np.exp(-z))
 
-# The model we're explaining: f(x1, x2) = sigmoid(1.5*x1 - 1.0*x2)
-def model(x1, x2):
-    return sigmoid(1.5 * x1 - 1.0 * x2)
+class SHAPHandExplainer(object):
+    """
+    A basic SHAP explainer for a 2-feature model, e.g. f(x1, x2).
+    This class computes Shapley values via enumerating all subsets.
+    """
 
-# -------------------------------------------------------------------------
-# 1) Define the instance to explain and the baseline
-# -------------------------------------------------------------------------
-# Target instance is (2, 0), and the baseline is (0, 0)
-x1_0, x2_0 = 2.0, 0.0
-f_instance = model(x1_0, x2_0)  # The model's prediction for our instance
-f_baseline = model(0, 0)  # The baseline prediction (model output at (0,0))
+    def __init__(self, model):
+        """
+        :param model: A function that takes (x1, x2) and returns a probability (0 to 1).
+        """
+        self.model = model
 
-print(f"Instance: (2,0) => f={f_instance:.3f}")
-print(f"Baseline: (0,0) => f={f_baseline:.3f}")
+    def explain_instance(self, x1_0, x2_0, baseline_x1=0.0, baseline_x2=0.0):
+        """
+        Calculate SHAP values for the instance (x1_0, x2_0) using (baseline_x1, baseline_x2)
+        as the baseline. Returns a dictionary with:
+            - phi_x1, phi_x2: the Shapley values for x1, x2
+            - f_instance: model output at (x1_0, x2_0)
+            - f_baseline: model output at (baseline_x1, baseline_x2)
+            - check_sum: baseline + phi_x1 + phi_x2 (should match f_instance)
+        """
+        # 1) Evaluate model at the target instance and baseline
+        f_instance = self.model(x1_0, x2_0)
+        f_baseline = self.model(baseline_x1, baseline_x2)
 
-# -------------------------------------------------------------------------
-# 2) Enumerate subsets for 2-feature SHAP
-# -------------------------------------------------------------------------
-# For SHAP, we calculate the model output for different subsets of features.
+        # 2) Enumerate subsets
+        # f({}) => both features at baseline
+        f_empty = self.model(baseline_x1, baseline_x2)
 
-# f({}): Both features at baseline => (0,0)
-f_empty = model(0, 0)
+        # f({x1})
+        f_x1 = self.model(x1_0, baseline_x2)
 
-# f({x1}): Only x1 = 2 (actual), x2 = 0 (baseline)
-f_x1 = model(2, 0)
+        # f({x2})
+        f_x2 = self.model(baseline_x1, x2_0)
 
-# f({x2}): Only x2 = 0 (actual), x1 = 0 (baseline) => still (0,0) in this example
-f_x2 = model(0, 0)
+        # f({x1, x2}) => target instance
+        f_x1x2 = self.model(x1_0, x2_0)
 
-# f({x1, x2}): Both x1 = 2, x2 = 0 => this is our target instance
-f_x1x2 = model(2, 0)
+        # 3) Compute Shapley values (phi_x1, phi_x2)
+        # phi_x1 = 1/2 * [ (f({x1}) - f({})) + (f({x1,x2}) - f({x2})) ]
+        phi_x1 = 0.5 * ((f_x1 - f_empty) + (f_x1x2 - f_x2))
 
-# -------------------------------------------------------------------------
-# 3) Calculate Shapley values using the formula
-# -------------------------------------------------------------------------
-# Now we compute the Shapley values for each feature. This is the core idea behind SHAP:
-# We evaluate how much each feature contributes to the model prediction, considering all subsets.
+        # phi_x2 = 1/2 * [ (f({x2}) - f({})) + (f({x1,x2}) - f({x1})) ]
+        phi_x2 = 0.5 * ((f_x2 - f_empty) + (f_x1x2 - f_x1))
 
-# phi_x1 = 1/2 * [ (f({x1}) - f({})) + (f({x1,x2}) - f({x2})) ]
-phi_x1 = 0.5 * ((f_x1 - f_empty) + (f_x1x2 - f_x2))
+        # 4) Check sum: baseline + sum of Shapley values = final prediction
+        check_sum = f_empty + phi_x1 + phi_x2
 
-# phi_x2 = 1/2 * [ (f({x2}) - f({})) + (f({x1,x2}) - f({x1})) ]
-phi_x2 = 0.5 * ((f_x2 - f_empty) + (f_x1x2 - f_x1))
+        return {
+            "phi_x1": phi_x1,
+            "phi_x2": phi_x2,
+            "f_instance": f_instance,
+            "f_baseline": f_baseline,
+            "check_sum": check_sum
+        }
 
-print(f"Shapley values:")
-print(f"  phi_x1 = {phi_x1:.3f}")
-print(f"  phi_x2 = {phi_x2:.3f}")
 
-# -------------------------------------------------------------------------
-# 4) Check if the Shapley values sum up to the final model output
-# -------------------------------------------------------------------------
-# The sum of the baseline and the Shapley values should give us the model's output for the instance.
+# 1) Define the model we want to explain
+def my_model(x1, x2):
+    # Example: f(x1, x2) = sigmoid(1.5*x1 - 1.0*x2)
+    return sigmoid(1.5 * x1 - x2)
 
-pred_sum_check = f_empty + phi_x1 + phi_x2
-print(f"\nCheck => baseline + phi_x1 + phi_x2 = {pred_sum_check:.3f}")
-print(f"Final model prediction             = {f_x1x2:.3f}")
+if __name__ == "__main__":
+    # 2) Instantiate the explainer
+    explainer = SHAPHandExplainer(model=my_model)
+
+    # 3) Define instance and baseline
+    x1_0, x2_0 = 2.0, 0.0   # target instance
+    baseline_x1, baseline_x2 = 0.0, 0.0  # baseline
+
+    # 4) Run the explainer
+    explanation = explainer.explain_instance(x1_0, x2_0,
+                                             baseline_x1,
+                                             baseline_x2)
+
+    # 5) Print out results
+    f_instance = explanation["f_instance"]
+    f_baseline = explanation["f_baseline"]
+    phi_x1 = explanation["phi_x1"]
+    phi_x2 = explanation["phi_x2"]
+    check_sum = explanation["check_sum"]
+
+    print(f"Instance: ({x1_0},{x2_0}) => f={f_instance:.3f}")
+    print(f"Baseline: ({baseline_x1},{baseline_x2}) => f={f_baseline:.3f}\n")
+
+    print(f"Shapley values:")
+    print(f"  phi_x1 = {phi_x1:.3f}")
+    print(f"  phi_x2 = {phi_x2:.3f}")
+
+    print(f"\nCheck => baseline + phi_x1 + phi_x2 = {check_sum:.3f}")
+    print(f"Model prediction for instance       = {f_instance:.3f}")
