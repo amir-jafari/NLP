@@ -8,6 +8,8 @@
 # The dataset 'IMDb' is used in this user case. Small Part of 'IMDb' is selected
 # for sentiment Analysis, and the goal is to classify reviews as positive or
 # negative.
+#
+# This py file is to use the HandExplainer and the Lime Package separately.
 # ==========================================================================
 
 import pandas as pd
@@ -15,4 +17,12 @@ import pandas as pd
 df_train = pd.read_csv('imdb_train.csv')
 df_test = pd.read_csv('imdb_test.csv')
 
+# ==========================================================================
+# Use LIMEHandExplainer built by ourself
+# ==========================================================================
 
+
+
+# ==========================================================================
+# Use LIME package
+# ==========================================================================
