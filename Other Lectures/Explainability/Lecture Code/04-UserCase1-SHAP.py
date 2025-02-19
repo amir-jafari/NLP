@@ -52,18 +52,16 @@ print("Review Snippet:", test_text[:200], "...")
 # ==========================================================================
 # Step 4 - SHAP Explanation
 # ==========================================================================
-
 def predict_proba_text(texts):
     return pipeline.predict_proba(texts)
 
-# Use shap.maskers.Text("word") for word-level masking
 explainer = shap.Explainer(
     predict_proba_text,
     masker=shap.maskers.Text("word"),
     output_names=["Negative", "Positive"]  # Just naming the two classes
 )
 
-# Now explain just the single instance (can pass a list of multiple)
+# can pass a list of multiple, but here we just pass the single
 shap_values = explainer([test_text])
 
 # ==========================================================================
