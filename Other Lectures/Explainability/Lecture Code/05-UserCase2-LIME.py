@@ -1,140 +1,172 @@
 # ==========================================================================
 #
-# User Case 2 - Spam Detection (LIME)
+# 20 Newsgroups (LIME) with Logistic Regression, Random Forest, XGBoost
 #
 # ==========================================================================
-
-# ==========================================================================
-# The dataset 'SMS Spam Collection' (url:
-# https://www.kaggle.com/datasets/uciml/sms-spam-collection-dataset)
-# is used in this user case.
+# This .py file demonstrates how to train and explain 3 separate models
+# (Logistic Regression, Random Forest, XGBoost) on the 20 Newsgroups dataset.
+# We use LIME to explain an instance's classification from each model.
 #
-# This py file is to show how the LIME package can be used in Spam
-# Detection with three different models: Logistic Regression, XGBoost,
-# and Random Forest.
+# To speed the code running, many parameters set to specific ones.
 # ==========================================================================
 
 # %%
 # ==========================================================================
 # Step 1 - Load Dataset
 # ==========================================================================
-import pandas as pd
+from sklearn.datasets import fetch_20newsgroups
 
-df = pd.read_csv("spam.csv", encoding="latin-1")
+full_train = fetch_20newsgroups(subset='train')
+newsgroups_test = fetch_20newsgroups(subset='test')
 
-print(df.head(5))
 
-df['label'] = df['label'].map({'ham': 0, 'spam': 1})
+class_names = []
+for name in full_train.target_names:
+    if 'misc' not in name:
+        short_name = name.split('.')[-1]
+    else:
+        short_name = '.'.join(name.split('.')[-2:])
+    class_names.append(short_name)
 
-print(df['label'].value_counts())
+class_names[3] = 'pc.hardware'
+class_names[4] = 'mac.hardware'
+
+print(f"Class Names: {', '.join(class_names)}")
 
 # %%
 # ==========================================================================
 # Step 2 - Necessary Packages
 # ==========================================================================
-from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-
-# XGBoost and Random Forest
-from xgboost import XGBClassifier
-from sklearn.ensemble import RandomForestClassifier
-
-# LIME for text
 from lime.lime_text import LimeTextExplainer
 
-# %%
-# ==========================================================================
-# Step 3 - Split the dataset
-# ==========================================================================
-from sklearn.model_selection import train_test_split
+# Estimators
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
 
-X_train, X_test, y_train, y_test = train_test_split(
-    df['text'], df['label'], test_size=0.3, random_state=42
-)
+# Metrics
+from sklearn.metrics import f1_score
 
 # %%
 # ==========================================================================
-# Step 4 - Build Pipelines
-#   1) Logistic Regression
-#   2) XGBoost
-#   3) Random Forest
+# Step 3 - Create a Smaller Training Subset & TF–IDF Vectors
 # ==========================================================================
-pipeline_lr = make_pipeline(
-    TfidfVectorizer(stop_words='english'),
-    LogisticRegression(max_iter=200)
+
+
+# =====================================================
+# The below code is to reduce the dataset to only 20%
+# We only keep 20% of the whole dataset
+# =====================================================
+X_sub, _, y_sub, _ = train_test_split(
+    full_train.data,
+    full_train.target,
+    test_size=0.8,
+    random_state=42
 )
 
-pipeline_xgb = make_pipeline(
-    TfidfVectorizer(stop_words='english'),
-    XGBClassifier(use_label_encoder=False, eval_metric='logloss')
-)
+vectorizer = TfidfVectorizer(lowercase=False, max_features=2000)
+X_train_full = vectorizer.fit_transform(X_sub)
+y_train_full = y_sub
 
-pipeline_rf = make_pipeline(
-    TfidfVectorizer(stop_words='english'),
-    RandomForestClassifier(n_estimators=100, random_state=42)
-)
+X_test_full = vectorizer.transform(newsgroups_test.data)
+y_test_full = newsgroups_test.target
+
 
 # %%
 # ==========================================================================
-# Step 5 - Train & Evaluate
+# Step 4 - Train 3 Models
 # ==========================================================================
-# Train
-pipeline_lr.fit(X_train, y_train)
-pipeline_xgb.fit(X_train, y_train)
-pipeline_rf.fit(X_train, y_train)
 
-# Evaluate each model
-acc_lr = pipeline_lr.score(X_test, y_test)
-acc_xgb = pipeline_xgb.score(X_test, y_test)
-acc_rf = pipeline_rf.score(X_test, y_test)
+print("\n[1] Logistic Regression")
+model_lr = LogisticRegression(max_iter=200)
+model_lr.fit(X_train_full, y_train_full)
+pred_lr = model_lr.predict(X_test_full)
+f1_lr = f1_score(y_test_full, pred_lr, average='weighted')
+print(f"LR Weighted F1: {f1_lr:.3f}")
 
-print("=== Test Accuracy ===")
-print(f"Logistic Regression: {acc_lr:.3f}")
-print(f"XGBoost           : {acc_xgb:.3f}")
-print(f"Random Forest     : {acc_rf:.3f}")
+print("\n[2] Random Forest with n_estimators=50")
+model_rf = RandomForestClassifier(n_estimators=50, random_state=42)
+model_rf.fit(X_train_full, y_train_full)
+pred_rf = model_rf.predict(X_test_full)
+f1_rf = f1_score(y_test_full, pred_rf, average='weighted')
+print(f"RF Weighted F1: {f1_rf:.3f}")
+
+print("\n[3] XGBoost with n_estimators=50")
+model_xgb = XGBClassifier(
+    use_label_encoder=False,
+    eval_metric="mlogloss",
+    n_estimators=50
+)
+model_xgb.fit(X_train_full, y_train_full)
+pred_xgb = model_xgb.predict(X_test_full)
+f1_xgb = f1_score(y_test_full, pred_xgb, average='weighted')
+print(f"XGB Weighted F1: {f1_xgb:.3f}")
 
 # %%
 # ==========================================================================
-# Step 6 - LIME Explanation on One Test Example
+# Step 5 - LIME Explanation
+#   We'll choose one test instance and explain with each model.
 # ==========================================================================
-test_idx = 0
-test_text  = X_test.iloc[test_idx]
-true_label = y_test.iloc[test_idx]
+test_idx = 1340
+test_text = newsgroups_test.data[test_idx]
+true_label = newsgroups_test.target[test_idx]
 
-print(f"\nExplaining test instance #{test_idx}")
-print("-----------------------------------")
-print("True Label:", true_label)
-print("Text:", test_text[:200], "...")
+print(f"\n=== Explaining test instance #{test_idx} ===")
+print("--------------------------------------------")
+print("True Label:", class_names[true_label])
+print("Text (truncated):", test_text[:200], "...")
 
-explainer = LimeTextExplainer(class_names=["ham","spam"])
+explainer = LimeTextExplainer(class_names=class_names)
 
-# 1) LIME for Logistic Regression
+def predict_proba_lr(texts):
+    X_vec = vectorizer.transform(texts)
+    return model_lr.predict_proba(X_vec)
+
+def predict_proba_rf(texts):
+    X_vec = vectorizer.transform(texts)
+    return model_rf.predict_proba(X_vec)
+
+def predict_proba_xgb(texts):
+    X_vec = vectorizer.transform(texts)
+    return model_xgb.predict_proba(X_vec)
+
+# 1) Explanation for Logistic Regression
 exp_lr = explainer.explain_instance(
     test_text,
-    pipeline_lr.predict_proba,  # black-box function
-    num_features=6
+    predict_proba_lr,
+    num_features=6,
+    top_labels=2
 )
+pred_label_lr = model_lr.predict(vectorizer.transform([test_text]))[0]
 print("\n=== LIME Explanation (Logistic Regression) ===")
-for feature, weight in exp_lr.as_list():
-    print(f"{feature:<15} weight={weight:.3f}")
+print("Predicted class =", class_names[pred_label_lr])
+for feat, weight in exp_lr.as_list(label=pred_label_lr):
+    print(f"{feat:<20} weight={weight:.3f}")
 
-# 2) LIME for XGBoost
-exp_xgb = explainer.explain_instance(
-    test_text,
-    pipeline_xgb.predict_proba,
-    num_features=6
-)
-print("\n=== LIME Explanation (XGBoost) ===")
-for feature, weight in exp_xgb.as_list():
-    print(f"{feature:<15} weight={weight:.3f}")
-
-# 3) LIME for Random Forest
+# 2) Explanation for Random Forest
 exp_rf = explainer.explain_instance(
     test_text,
-    pipeline_rf.predict_proba,
-    num_features=6
+    predict_proba_rf,
+    num_features=6,
+    top_labels=2
 )
+pred_label_rf = model_rf.predict(vectorizer.transform([test_text]))[0]
 print("\n=== LIME Explanation (Random Forest) ===")
-for feature, weight in exp_rf.as_list():
-    print(f"{feature:<15} weight={weight:.3f}")
+print("Predicted class =", class_names[pred_label_rf])
+for feat, weight in exp_rf.as_list(label=pred_label_rf):
+    print(f"{feat:<20} weight={weight:.3f}")
+
+# 3) Explanation for XGBoost
+exp_xgb = explainer.explain_instance(
+    test_text,
+    predict_proba_xgb,
+    num_features=6,
+    top_labels=2
+)
+pred_label_xgb = model_xgb.predict(vectorizer.transform([test_text]))[0]
+print("\n=== LIME Explanation (XGBoost) ===")
+print("Predicted class =", class_names[pred_label_xgb])
+for feat, weight in exp_xgb.as_list(label=pred_label_xgb):
+    print(f"{feat:<20} weight={weight:.3f}")
