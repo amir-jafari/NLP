@@ -107,9 +107,8 @@ print(f"XGB Weighted F1: {f1_xgb:.3f}")
 # %%
 # ==========================================================================
 # Step 5 - LIME Explanation
-#   We'll choose one test instance and explain with each model.
 # ==========================================================================
-test_idx = 1340
+test_idx = 0
 test_text = newsgroups_test.data[test_idx]
 true_label = newsgroups_test.target[test_idx]
 
