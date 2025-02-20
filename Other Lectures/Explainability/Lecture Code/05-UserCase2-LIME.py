@@ -1,25 +1,24 @@
-# ==========================================================================
-#
-# 20 Newsgroups (LIME) with Logistic Regression, Random Forest, XGBoost
-#
-# ==========================================================================
-# This .py file demonstrates how to train and explain 3 separate models
-# (Logistic Regression, Random Forest, XGBoost) on the 20 Newsgroups dataset.
-# We use LIME to explain an instance's classification from each model.
-#
-# To speed the code running, many parameters set to specific ones.
-# ==========================================================================
+# -*- coding: utf-8 -*-
+"""
+20 Newsgroups Classification with LIME Explanations
 
-# %%
-# ==========================================================================
+This script demonstrates how to:
+1. Load a subset of the 20 Newsgroups dataset.
+2. Train three different models (Logistic Regression, Random Forest, XGBoost).
+3. Evaluate model performance using the weighted F1 score.
+4. Use the LIME package to explain a single test instance for each model.
+"""
+
+# =============================================================================
 # Step 1 - Load Dataset
-# ==========================================================================
+# =============================================================================
 from sklearn.datasets import fetch_20newsgroups
 
+# Fetch train/test subsets of the 20 Newsgroups data
 full_train = fetch_20newsgroups(subset='train')
 newsgroups_test = fetch_20newsgroups(subset='test')
 
-
+# Create shorter class names for readability
 class_names = []
 for name in full_train.target_names:
     if 'misc' not in name:
@@ -28,15 +27,15 @@ for name in full_train.target_names:
         short_name = '.'.join(name.split('.')[-2:])
     class_names.append(short_name)
 
+# Adjust a few classes for clarity
 class_names[3] = 'pc.hardware'
 class_names[4] = 'mac.hardware'
 
 print(f"Class Names: {', '.join(class_names)}")
 
-# %%
-# ==========================================================================
+# =============================================================================
 # Step 2 - Necessary Packages
-# ==========================================================================
+# =============================================================================
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from lime.lime_text import LimeTextExplainer
@@ -49,16 +48,12 @@ from xgboost import XGBClassifier
 # Metrics
 from sklearn.metrics import f1_score
 
-# %%
-# ==========================================================================
+# =============================================================================
 # Step 3 - Create a Smaller Training Subset & TF–IDF Vectors
-# ==========================================================================
+# =============================================================================
+# To reduce computation time, we take only 20% of the training data.
+# Then, apply a TF-IDF Vectorizer (with max_features=2000) to both training and test sets.
 
-
-# =====================================================
-# The below code is to reduce the dataset to only 20%
-# We only keep 20% of the whole dataset
-# =====================================================
 X_sub, _, y_sub, _ = train_test_split(
     full_train.data,
     full_train.target,
@@ -67,33 +62,30 @@ X_sub, _, y_sub, _ = train_test_split(
 )
 
 vectorizer = TfidfVectorizer(lowercase=False, max_features=2000)
-X_train_full = vectorizer.fit_transform(X_sub)
+X_train_full = vectorizer.fit_transform(X_sub)  # Training vectors
 y_train_full = y_sub
 
-X_test_full = vectorizer.transform(newsgroups_test.data)
+X_test_full = vectorizer.transform(newsgroups_test.data)  # Test vectors
 y_test_full = newsgroups_test.target
 
-
-# %%
-# ==========================================================================
-# Step 4 - Train 3 Models
-# ==========================================================================
-
-print("\n[1] Logistic Regression")
+# =============================================================================
+# Step 4 - Train 3 Models & Evaluate
+# =============================================================================
+print("\n[1] Logistic Regression (max_iter=200)")
 model_lr = LogisticRegression(max_iter=200)
 model_lr.fit(X_train_full, y_train_full)
 pred_lr = model_lr.predict(X_test_full)
 f1_lr = f1_score(y_test_full, pred_lr, average='weighted')
-print(f"LR Weighted F1: {f1_lr:.3f}")
+print(f"  LR Weighted F1: {f1_lr:.3f}")
 
-print("\n[2] Random Forest with n_estimators=50")
+print("\n[2] Random Forest (n_estimators=50)")
 model_rf = RandomForestClassifier(n_estimators=50, random_state=42)
 model_rf.fit(X_train_full, y_train_full)
 pred_rf = model_rf.predict(X_test_full)
 f1_rf = f1_score(y_test_full, pred_rf, average='weighted')
-print(f"RF Weighted F1: {f1_rf:.3f}")
+print(f"  RF Weighted F1: {f1_rf:.3f}")
 
-print("\n[3] XGBoost with n_estimators=50")
+print("\n[3] XGBoost (n_estimators=50)")
 model_xgb = XGBClassifier(
     use_label_encoder=False,
     eval_metric="mlogloss",
@@ -102,12 +94,11 @@ model_xgb = XGBClassifier(
 model_xgb.fit(X_train_full, y_train_full)
 pred_xgb = model_xgb.predict(X_test_full)
 f1_xgb = f1_score(y_test_full, pred_xgb, average='weighted')
-print(f"XGB Weighted F1: {f1_xgb:.3f}")
+print(f"  XGB Weighted F1: {f1_xgb:.3f}")
 
-# %%
-# ==========================================================================
-# Step 5 - LIME Explanation
-# ==========================================================================
+# =============================================================================
+# Step 5 - LIME Explanation of a Single Test Instance
+# =============================================================================
 test_idx = 0
 test_text = newsgroups_test.data[test_idx]
 true_label = newsgroups_test.target[test_idx]
@@ -117,6 +108,7 @@ print("--------------------------------------------")
 print("True Label:", class_names[true_label])
 print("Text (truncated):", test_text[:200], "...")
 
+# Initialize a LimeTextExplainer with the shortened class names.
 explainer = LimeTextExplainer(class_names=class_names)
 
 def predict_proba_lr(texts):
