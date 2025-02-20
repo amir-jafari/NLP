@@ -84,3 +84,5 @@ indices_sorted = sorted(range(len(scores)), key=lambda i: abs(scores[i]), revers
 print("\nTop word contributions (SHAP):")
 for i in indices_sorted[:10]:
     print(f"{tokens[i]:<15} => SHAP value = {scores[i]:.3f}")
+
+#%%

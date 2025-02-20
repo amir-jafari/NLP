@@ -72,3 +72,6 @@ for word, weight in exp.as_list():
 
 #%%
 print(df_train['label'].value_counts())
+
+
+
