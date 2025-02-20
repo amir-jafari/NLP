@@ -1,19 +1,13 @@
-# ==========================================================================
-#
-# 20 Newsgroups (SHAP) with Logistic Regression, Random Forest, XGBoost
-# (Numeric approach to avoid text mismatch)
-#
-# ==========================================================================
-# We train 3 models on TF–IDF features from 20 Newsgroups
-# and use SHAP KernelExplainer with numeric arrays.
-# This way, we don't run into the "TypeError: cannot use a string pattern
-# on a bytes-like object" mismatch between text vs. numeric inputs.
-# ==========================================================================
+# -*- coding: utf-8 -*-
+"""
+20 Newsgroups Classification with SHAP (Model-Specific)
+Logistic Regression => shap.LinearExplainer (multinomial)
+Random Forest, XGBoost => shap.TreeExplainer
+"""
 
-# %%
-# ==========================================================================
+# =============================================================================
 # Step 1 - Load Dataset
-# ==========================================================================
+# =============================================================================
 from sklearn.datasets import fetch_20newsgroups
 
 full_train = fetch_20newsgroups(subset='train')
@@ -27,38 +21,27 @@ for name in full_train.target_names:
         short_name = '.'.join(name.split('.')[-2:])
     class_names.append(short_name)
 
-# Just for neatness in printing
 class_names[3] = 'pc.hardware'
 class_names[4] = 'mac.hardware'
-
 print(f"Class Names: {', '.join(class_names)}")
 
-# %%
-# ==========================================================================
-# Step 2 - Necessary Packages
-# ==========================================================================
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
+# =============================================================================
+# Step 2 - Import Packages
+# =============================================================================
 import shap
 import numpy as np
+import scipy
 
-# Estimators
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
-
-# Metrics
 from sklearn.metrics import f1_score
 
-# %%
-# ==========================================================================
+# =============================================================================
 # Step 3 - Create a Smaller Training Subset & TF–IDF Vectors
-# ==========================================================================
-
-# =====================================================
-# The below code is to reduce the dataset to only 20%
-# We only keep 20% of the whole dataset
-# =====================================================
+# =============================================================================
 X_sub, _, y_sub, _ = train_test_split(
     full_train.data,
     full_train.target,
@@ -73,109 +56,87 @@ y_train_full = y_sub
 X_test_full = vectorizer.transform(newsgroups_test.data)
 y_test_full = newsgroups_test.target
 
-# %%
-# ==========================================================================
-# Step 4 - Train 3 Models
-# ==========================================================================
-print("\n[1] Logistic Regression")
-model_lr = LogisticRegression(max_iter=200)
+# =============================================================================
+# Step 4 - Train & Evaluate Three Models
+# =============================================================================
+print("\n[1] Logistic Regression (multinomial)")
+model_lr = LogisticRegression(max_iter=200, solver='lbfgs')
 model_lr.fit(X_train_full, y_train_full)
 pred_lr = model_lr.predict(X_test_full)
-f1_lr = f1_score(y_test_full, pred_lr, average='weighted')
-print(f"LR Weighted F1: {f1_lr:.3f}")
+print(f"LR Weighted F1: {f1_score(y_test_full, pred_lr, average='weighted'):.3f}")
 
-print("\n[2] Random Forest with n_estimators=50")
+print("\n[2] Random Forest (n_estimators=50)")
 model_rf = RandomForestClassifier(n_estimators=50, random_state=42)
 model_rf.fit(X_train_full, y_train_full)
 pred_rf = model_rf.predict(X_test_full)
-f1_rf = f1_score(y_test_full, pred_rf, average='weighted')
-print(f"RF Weighted F1: {f1_rf:.3f}")
+print(f"RF Weighted F1: {f1_score(y_test_full, pred_rf, average='weighted'):.3f}")
 
-print("\n[3] XGBoost with n_estimators=50")
-model_xgb = XGBClassifier(
-    use_label_encoder=False,
-    eval_metric="mlogloss",
-    n_estimators=50
-)
+print("\n[3] XGBoost (n_estimators=50)")
+model_xgb = XGBClassifier(use_label_encoder=False, eval_metric="mlogloss", n_estimators=50)
 model_xgb.fit(X_train_full, y_train_full)
 pred_xgb = model_xgb.predict(X_test_full)
-f1_xgb = f1_score(y_test_full, pred_xgb, average='weighted')
-print(f"XGB Weighted F1: {f1_xgb:.3f}")
+print(f"XGB Weighted F1: {f1_score(y_test_full, pred_xgb, average='weighted'):.3f}")
 
-# %%
-# ==========================================================================
-# Step 5 - SHAP Explanation (KernelExplainer)
-# ==========================================================================
-
+# =============================================================================
+# Step 5 - SHAP Explanation of a Single Test Instance
+# =============================================================================
 test_idx = 0
 test_text = newsgroups_test.data[test_idx]
-true_label = newsgroups_test.target[test_idx]
+true_label = y_test_full[test_idx]
 
+print(f"\n=== Explaining Test Instance #{test_idx} ===")
+print("True Label:", class_names[true_label])
+print("Text (truncated):", test_text[:200], "...")
 
-background_size = 100
-
-indices = np.random.choice(X_train_full.shape[0], background_size, replace=False)
-background_data = X_train_full[indices].toarray()
-
-# We want to get feature names for easier debugging
 feature_names = vectorizer.get_feature_names_out()
 
-# Function to print out top contributing features
-def print_top_features(shap_values, k=10):
-    """
-    shap_values: array of shape (n_features,) with the SHAP values.
-    k: number of top features to print
-    """
+def print_top_features(shap_values, top_k=10):
     abs_vals = np.abs(shap_values)
-    sorted_indices = np.argsort(abs_vals)[::-1]
-    top_indices = sorted_indices[:k]
-    for idx in top_indices:
-        # feature_names[idx] => name, shap_values[idx] => value
-        print(f"{feature_names[idx]:<20} => SHAP value = {shap_values[idx]:.3f}")
+    sorted_indices = np.argsort(abs_vals)[::-1][:top_k]
+    for idx in sorted_indices:
+        print(f"{feature_names[idx]:<20} => SHAP = {shap_values[idx]:.3f}")
 
-# ---------------------
-# Step 5.1 - LR Explanation
-# ---------------------
-def lr_predict_proba(X):
-    return model_lr.predict_proba(X)
+# --- SHAP for Logistic Regression ---
+X_train_lr = X_train_full.toarray() if scipy.sparse.issparse(X_train_full) else X_train_full
+X_test_lr  = X_test_full.toarray()  if scipy.sparse.issparse(X_test_full)  else X_test_full
 
-print("\n--- SHAP for Logistic Regression ---")
-explainer_lr = shap.KernelExplainer(lr_predict_proba, background_data)
+explainer_lr = shap.LinearExplainer(model_lr, X_train_lr)
+shap_ex_lr = explainer_lr(X_test_lr[test_idx:test_idx+1])
+pred_cl_lr = pred_lr[test_idx]
+shap_vals_lr = shap_ex_lr.values[0, pred_cl_lr, :]
 
-# X_test_full[[test_idx]] is a slice of shape (1, n_features)
-shap_values_lr = explainer_lr.shap_values(X_test_full[[test_idx]].toarray())
+print("\n[Logistic Regression]")
+print(f"Predicted class: {class_names[pred_cl_lr]}")
+print_top_features(shap_vals_lr, top_k=10)
 
-# shap_values_lr is a list (one array per class), shape => (#classes, 1, n_features)
-predicted_class_lr = pred_lr[test_idx]
-# Extract the SHAP values for the predicted class => shape (1, n_features)
-shap_values_class_lr = shap_values_lr[predicted_class_lr][0]
-print_top_features(shap_values_class_lr, k=10)
+# --- SHAP for Random Forest ---
+X_train_rf = X_train_full.toarray()
+X_test_rf  = X_test_full.toarray()
 
-# ---------------------
-# Step 5.2 - RF Explanation
-# ---------------------
-def rf_predict_proba(X):
-    return model_rf.predict_proba(X)
+explainer_rf = shap.TreeExplainer(
+    model_rf, data=X_train_rf,
+    feature_perturbation='interventional'
+)
+shap_ex_rf = explainer_rf(X_test_rf[test_idx:test_idx+1], check_additivity=False)
+pred_cl_rf = pred_rf[test_idx]
+shap_vals_rf = shap_ex_rf.values[0, pred_cl_rf, :]
 
-print("\n--- SHAP for Random Forest ---")
-explainer_rf = shap.KernelExplainer(rf_predict_proba, background_data)
-shap_values_rf = explainer_rf.shap_values(X_test_full[[test_idx]].toarray())
+print("\n[Random Forest]")
+print(f"Predicted class: {class_names[pred_cl_rf]}")
+print_top_features(shap_vals_rf, top_k=10)
 
-predicted_class_rf = pred_rf[test_idx]
-shap_values_class_rf = shap_values_rf[predicted_class_rf][0]
-print_top_features(shap_values_class_rf, k=10)
+# --- SHAP for XGBoost ---
+X_train_xgb = X_train_full.toarray()
+X_test_xgb  = X_test_full.toarray()
 
-# ---------------------
-# Step 5.3 - XGBoost Explanation
-# ---------------------
-def xgb_predict_proba(X):
-    return model_xgb.predict_proba(X)
+explainer_xgb = shap.TreeExplainer(
+    model_xgb, data=X_train_xgb,
+    feature_perturbation='interventional'
+)
+shap_ex_xgb = explainer_xgb(X_test_xgb[test_idx:test_idx+1], check_additivity=False)
+pred_cl_xgb = pred_xgb[test_idx]
+shap_vals_xgb = shap_ex_xgb.values[0, pred_cl_xgb, :]
 
-print("\n--- SHAP for XGBoost ---")
-explainer_xgb = shap.KernelExplainer(xgb_predict_proba, background_data)
-shap_values_xgb = explainer_xgb.shap_values(X_test_full[[test_idx]].toarray())
-
-predicted_class_xgb = pred_xgb[test_idx]
-shap_values_class_xgb = shap_values_xgb[predicted_class_xgb][0]
-print_top_features(shap_values_class_xgb, k=10)
-
+print("\n[XGBoost]")
+print(f"Predicted class: {class_names[pred_cl_xgb]}")
+print_top_features(shap_vals_xgb, top_k=10)
