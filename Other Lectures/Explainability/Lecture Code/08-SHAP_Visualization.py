@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 shap.initjs()
 
-customer = pd.read_csv(r'C:\Users\aaron\PycharmProjects\NLP\Other Lectures\Explainability\Lecture Code\Customer Churn.csv')
+customer = pd.read_csv('Customer Churn.csv')
 customer.head()
 
 #%%
