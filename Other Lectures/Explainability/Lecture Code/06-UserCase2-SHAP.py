@@ -63,24 +63,24 @@ print("\n[1] Logistic Regression (multinomial)")
 model_lr = LogisticRegression(max_iter=200, solver='lbfgs')
 model_lr.fit(X_train_full, y_train_full)
 pred_lr = model_lr.predict(X_test_full)
-print(f"LR Weighted F1: {f1_score(y_test_full, pred_lr, average='weighted'):.3f}")
+print(f"LR Weighted F1: {f1_score(y_test_full, pred_lr, average='weighted'):.5f}")
 
 print("\n[2] Random Forest (n_estimators=50)")
 model_rf = RandomForestClassifier(n_estimators=50, random_state=42)
 model_rf.fit(X_train_full, y_train_full)
 pred_rf = model_rf.predict(X_test_full)
-print(f"RF Weighted F1: {f1_score(y_test_full, pred_rf, average='weighted'):.3f}")
+print(f"RF Weighted F1: {f1_score(y_test_full, pred_rf, average='weighted'):.5f}")
 
 print("\n[3] XGBoost (n_estimators=50)")
 model_xgb = XGBClassifier(use_label_encoder=False, eval_metric="mlogloss", n_estimators=50)
 model_xgb.fit(X_train_full, y_train_full)
 pred_xgb = model_xgb.predict(X_test_full)
-print(f"XGB Weighted F1: {f1_score(y_test_full, pred_xgb, average='weighted'):.3f}")
+print(f"XGB Weighted F1: {f1_score(y_test_full, pred_xgb, average='weighted'):.5f}")
 
 # =============================================================================
 # Step 5 - SHAP Explanation of a Single Test Instance
 # =============================================================================
-test_idx = 0
+test_idx = 10
 test_text = newsgroups_test.data[test_idx]
 true_label = y_test_full[test_idx]
 
@@ -94,7 +94,7 @@ def print_top_features(shap_values, top_k=10):
     abs_vals = np.abs(shap_values)
     sorted_indices = np.argsort(abs_vals)[::-1][:top_k]
     for idx in sorted_indices:
-        print(f"{feature_names[idx]:<20} => SHAP = {shap_values[idx]:.3f}")
+        print(f"{feature_names[idx]:<20} => SHAP = {shap_values[idx]:.7f}")
 
 # --- SHAP for Logistic Regression ---
 X_train_lr = X_train_full.toarray() if scipy.sparse.issparse(X_train_full) else X_train_full
