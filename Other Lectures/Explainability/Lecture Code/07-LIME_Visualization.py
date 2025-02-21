@@ -66,11 +66,11 @@ model.fit(x_train, y_train)
 np.random.seed(123)
 predict_fn = lambda x: model.predict_proba(x)
 # Defining the LIME explainer object
-explainer = lime.lime_tabular.LimeTabularExplainer(customer[features.columns].astype(int).values,                                               mode='classification',
-class_names=['Did not Churn', 'Churn'],
-training_labels=customer['Churn'],
-feature_names=features.columns
-)
+explainer = lime.lime_tabular.LimeTabularExplainer(customer[features.columns].astype(int).values,
+                                                   mode='classification',
+                                                   class_names=['Did not Churn', 'Churn'],
+                                                   training_labels=customer['Churn'],
+                                                   feature_names=features.columns)
 # using LIME to get the explanations
 i = 5
 exp=explainer.explain_instance(customer.loc[i,features.columns].astype(int).values, predict_fn, num_features=5)
