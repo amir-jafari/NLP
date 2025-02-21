@@ -114,6 +114,12 @@ for idx, ex in enumerate(sp_exp.sp_explanations):
 # =====================================================================
 import matplotlib.pyplot as plt
 
-fig = exp.as_pyplot_figure(label=1)
-plt.title("Local explanation for class versicolor")
+local_exp = exp.as_list()
+# Separate feature names and their contribution weights
+labels, weights = zip(*local_exp)
+
+plt.barh(labels, weights, color='green')
+plt.xlabel('Feature Contribution')
+plt.title('LIME Explanation for One Prediction')
+plt.gca().invert_yaxis()  # Highest contribution at top
 plt.show()
