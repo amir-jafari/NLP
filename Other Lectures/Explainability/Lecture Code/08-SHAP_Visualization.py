@@ -108,8 +108,7 @@ shap.decision_plot(
     base_value=explainer.expected_value[1],
     shap_values=shap_values_class1,
     features=X_test,
-    # convert pd.Index -> list
-    feature_names=list(X_test.columns),
+    feature_names=list(X_test.columns)
 )
 
 shap_values_class0 = shap_values[..., 0]
@@ -119,12 +118,24 @@ shap.decision_plot(
     shap_values=shap_values_class0,
     features=X_test,
     # convert pd.Index -> list
-    feature_names=list(X_test.columns),
+    feature_names=list(X_test.columns)
 )
 
+#%%
+# =====================================================================
+# Graph 6 - Waterfall Plot
+# =====================================================================
+row_index = 0
+shap_values_class1 = shap_values[..., 1]
 
+explanation = shap.Explanation(
+    values       = shap_values_class1[row_index],
+    base_values  = explainer.expected_value[1],
+    data         = X_test.iloc[row_index],
+    feature_names = X_test.columns
+)
 
-
+shap.plots.waterfall(explanation)
 
 
 

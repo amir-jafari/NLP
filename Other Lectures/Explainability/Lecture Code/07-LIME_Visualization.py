@@ -122,4 +122,6 @@ plt.barh(labels, weights, color='green')
 plt.xlabel('Feature Contribution')
 plt.title('LIME Explanation for One Prediction')
 plt.gca().invert_yaxis()  # Highest contribution at top
+
+plt.tight_layout()
 plt.show()
