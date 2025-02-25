@@ -3,10 +3,11 @@
 # ----------------------------------------------------------------------------------------------------------------------
 #%% --------------------------------------------------------------------------------------------------------------------
 from datasets import load_dataset
-import random
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
+from lime.lime_text import LimeTextExplainer
+import pandas as pd
 
 dataset = load_dataset("amazon_polarity")
 
@@ -16,14 +17,12 @@ train_texts = train_dataset["content"]
 train_labels = train_dataset["label"]
 test_texts = test_dataset["content"]
 test_labels = test_dataset["label"]
-
 vectorizer = TfidfVectorizer(stop_words='english', max_features=2000)
 X_train = vectorizer.fit_transform(train_texts)
 X_test = vectorizer.transform(test_texts)
 
 clf = LogisticRegression(max_iter=1000)
 clf.fit(X_train, train_labels)
-
 preds = clf.predict(X_test)
 acc = accuracy_score(test_labels, preds)
 #%%
@@ -81,7 +80,7 @@ print(20*'-' + 'End Q4' + 20*'-')
 import pandas as pd
 
 
-df = pd.DataFrame(amazon_data, columns=["review", "label"])
+
 
 # ======================================================================================================================
 # Class_Ex5:
