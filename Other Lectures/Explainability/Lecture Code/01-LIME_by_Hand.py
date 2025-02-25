@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.linear_model import LinearRegression
-
+#%%---------------------------------------------------------------------------------------------------------------------
 def sigmoid(z):
     return 1.0 / (1.0 + np.exp(-z))
 
@@ -37,8 +37,7 @@ class LIMEHandExplainer:
 def my_model(x1, x2):
     z = 1.5 * x1 - 1.0 * x2
     return sigmoid(z)
-
-
+#%%---------------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     explainer = LIMEHandExplainer(model=my_model, kernel_width=0.75)
     x1_0, x2_0 = 2.0, 0.0
