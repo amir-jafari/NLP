@@ -1,93 +1,104 @@
-# =================================================================
+# ======================================================================================================================
+# Shared Setup - Loading dataset 'amazon_polarity', and loading packages you need
+# ----------------------------------------------------------------------------------------------------------------------
+#%% --------------------------------------------------------------------------------------------------------------------
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from datasets import load_dataset
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+from lime.lime_text import LimeTextExplainer
+import shap
+import webbrowser
+from IPython.display import HTML, display
+import random
+
+dataset = load_dataset("amazon_polarity")
+
+train_dataset = dataset["train"].select(range(10000))
+test_dataset = dataset["test"].select(range(2000))
+train_texts = train_dataset["content"]
+train_labels = train_dataset["label"]
+test_texts = test_dataset["content"]
+test_labels = test_dataset["label"]
+vectorizer = TfidfVectorizer(stop_words='english', max_features=2000)
+X_train = vectorizer.fit_transform(train_texts)
+X_test = vectorizer.transform(test_texts)
+
+clf = LogisticRegression(max_iter=1000)
+clf.fit(X_train, train_labels)
+preds = clf.predict(X_test)
+acc = accuracy_score(test_labels, preds)
+class_names = ["Negative", "Positive"]
+
+def predict_proba(text_list):
+    return clf.predict_proba(vectorizer.transform(text_list))
+#%%
+# ======================================================================================================================
 # Class_Ex1:
-# Load a small portion of the Amazon Polarity dataset
-# for quick demonstration.
-# ----------------------------------------------------------------
+# How can you create a global overview of Explanations using LIME for multiple instances at once?
+# LIME is often demonstrated on single-instance explanations.
+# However, you might want a summary across a larger dataset (e.g., to see which words are most influential overall).
+# One approach is to iterate over many samples, gather each local explanation, and aggregate feature weights.
+# ----------------------------------------------------------------------------------------------------------------------
 print(20*'-' + 'Begin Q1' + 20*'-')
 
 
 
 print(20*'-' + 'End Q1' + 20*'-')
-
-# =================================================================
+# ======================================================================================================================
 # Class_Ex2:
-# Tokenize, define pretrained model & relevant functions
-# ----------------------------------------------------------------
+# How to compare SHAP Explanations for Two Labels (Logistic Regression Vs. Random Forest)?
+# Sometimes you want to see how two model types (e.g., LR vs. RF) weigh features differently for a single instance.
+# Step 1: Train both models
+# Step 2: Use SHAP to generate explanations
+# Step 3: Compare the results
+# ----------------------------------------------------------------------------------------------------------------------
 print(20*'-' + 'Begin Q2' + 20*'-')
 
 
-print(20*'-' + 'End Q2' + 20*'-')
 
-# =================================================================
+print(20*'-' + 'End Q2' + 20*'-')
+# ======================================================================================================================
 # Class_Ex3:
-# Train & Evaluate the Model with Hugging Face Trainer
-# ----------------------------------------------------------------
+# How can we visualize the uncertainty or variance in local explanations from LIME?
+# LIME’s random perturbations can produce slightly different explanations each run.
+# Step 1: Run LIME multiple times on the same instance
+# Step 2: Collect Top Features
+# Step 3: Check how stable the explanations are
+# ----------------------------------------------------------------------------------------------------------------------
 print(20*'-' + 'Begin Q3' + 20*'-')
 
 
 
 print(20*'-' + 'End Q3' + 20*'-')
-
-# =================================================================
+# ======================================================================================================================
 # Class_Ex4:
-# Use LIME to explain the model predictions
-# ----------------------------------------------------------------
+# How can we incorporate domain-specific synonyms or phrases in LIME for text explanations?
+# LIME typically handles perturbations by removing words. If you want domain-specific synonyms (perhaps “coach” ↔
+# “manager,” “firm” ↔ “company”) so that perturbations are more realistic, you can define a custom function that
+# replaces words with synonyms from a small dictionary.
+# ----------------------------------------------------------------------------------------------------------------------
 print(20*'-' + 'Begin Q4' + 20*'-')
 
 
+
 print(20*'-' + 'End Q4' + 20*'-')
-import pandas as pd
-
-# A sample data
-amazon_data = [
-    ("This product is amazing! I love it.", 1),
-    ("Terrible experience, would not buy again.", 0),
-    ("Highly recommend this item to everyone.", 1),
-    ("Not worth the money, very disappointed.", 0),
-    ("Fantastic quality and fast shipping!", 1),
-    ("Waste of money, worst purchase ever.", 0),
-]
-
-df = pd.DataFrame(amazon_data, columns=["review", "label"])
-
-# =================================================================
-# Class_Ex1:
-# Load the above sample dataset and split it to train:test = 7:3
-# ----------------------------------------------------------------
+# ======================================================================================================================
+# Class_Ex5:
+# How do we integrate partial dependence plots (PDP) with LIME/SHAP for text features?
+# PDPs are typically for numeric features. With text, you can define “numeric proxies,” such as:
+# Text length
+# Number of uppercase words
+# Sentiment score
+# Then see how changing that proxy affects the model output.
+# ----------------------------------------------------------------------------------------------------------------------
 print(20*'-' + ' Begin Q1 ' + 20*'-')
-
-
 
 
 
 print(20*'-' + ' End Q1 ' + 20*'-', "\n")
 
-# =================================================================
-# Class_Ex2:
-# Build a simple text classification pipeline using TF-IDF and Logistic Regression.
-# ----------------------------------------------------------------
-print(20*'-' + ' Begin Q2 ' + 20*'-')
-
-
-
-print(20*'-' + ' End Q2 ' + 20*'-', "\n")
-
-# =================================================================
-# Class_Ex3:
-# Analyze feature importance using SHAP.
-# ----------------------------------------------------------------
-print(20*'-' + ' Begin Q3 ' + 20*'-')
-
-
-
-print(20*'-' + ' End Q3 ' + 20*'-', "\n")
-
-# =================================================================
-# Class_Ex4:
-# Use LIME to explain a sample prediction.
-# ----------------------------------------------------------------
-print(20*'-' + ' Begin Q4 ' + 20*'-')
-
-
-
-print(20*'-' + ' End Q4 ' + 20*'-')
