@@ -1,12 +1,20 @@
 # ======================================================================================================================
-# Shared Setup - Loading dataset 'amazon_polarity'
+# Shared Setup - Loading dataset 'amazon_polarity', and loading packages you need
 # ----------------------------------------------------------------------------------------------------------------------
 #%% --------------------------------------------------------------------------------------------------------------------
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 from datasets import load_dataset
-import random
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
+from lime.lime_text import LimeTextExplainer
+import shap
+import webbrowser
+from IPython.display import HTML, display
+import random
 
 dataset = load_dataset("amazon_polarity")
 
@@ -16,16 +24,18 @@ train_texts = train_dataset["content"]
 train_labels = train_dataset["label"]
 test_texts = test_dataset["content"]
 test_labels = test_dataset["label"]
-
 vectorizer = TfidfVectorizer(stop_words='english', max_features=2000)
 X_train = vectorizer.fit_transform(train_texts)
 X_test = vectorizer.transform(test_texts)
 
 clf = LogisticRegression(max_iter=1000)
 clf.fit(X_train, train_labels)
-
 preds = clf.predict(X_test)
 acc = accuracy_score(test_labels, preds)
+class_names = ["Negative", "Positive"]
+
+def predict_proba(text_list):
+    return clf.predict_proba(vectorizer.transform(text_list))
 #%%
 # ======================================================================================================================
 # Class_Ex1:
@@ -39,7 +49,6 @@ print(20*'-' + 'Begin Q1' + 20*'-')
 
 
 print(20*'-' + 'End Q1' + 20*'-')
-
 # ======================================================================================================================
 # Class_Ex2:
 # How to compare SHAP Explanations for Two Labels (Logistic Regression Vs. Random Forest)?
@@ -51,8 +60,8 @@ print(20*'-' + 'End Q1' + 20*'-')
 print(20*'-' + 'Begin Q2' + 20*'-')
 
 
-print(20*'-' + 'End Q2' + 20*'-')
 
+print(20*'-' + 'End Q2' + 20*'-')
 # ======================================================================================================================
 # Class_Ex3:
 # How can we visualize the uncertainty or variance in local explanations from LIME?
@@ -66,7 +75,6 @@ print(20*'-' + 'Begin Q3' + 20*'-')
 
 
 print(20*'-' + 'End Q3' + 20*'-')
-
 # ======================================================================================================================
 # Class_Ex4:
 # How can we incorporate domain-specific synonyms or phrases in LIME for text explanations?
@@ -77,12 +85,8 @@ print(20*'-' + 'End Q3' + 20*'-')
 print(20*'-' + 'Begin Q4' + 20*'-')
 
 
+
 print(20*'-' + 'End Q4' + 20*'-')
-import pandas as pd
-
-
-df = pd.DataFrame(amazon_data, columns=["review", "label"])
-
 # ======================================================================================================================
 # Class_Ex5:
 # How do we integrate partial dependence plots (PDP) with LIME/SHAP for text features?
@@ -93,8 +97,6 @@ df = pd.DataFrame(amazon_data, columns=["review", "label"])
 # Then see how changing that proxy affects the model output.
 # ----------------------------------------------------------------------------------------------------------------------
 print(20*'-' + ' Begin Q1 ' + 20*'-')
-
-
 
 
 
