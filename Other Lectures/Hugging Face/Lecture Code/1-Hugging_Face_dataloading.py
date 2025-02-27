@@ -1,0 +1,11 @@
+#%% --------------------------------------------------------------------------------------------------------------------
+from datasets import load_dataset
+
+#%% --------------------------------------------------------------------------------------------------------------------
+dataset = load_dataset('yelp_polarity')
+
+train_data = dataset['train']
+test_data = dataset['test']
+
+print(len(train_data))
+print(len(test_data))
