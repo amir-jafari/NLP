@@ -50,9 +50,6 @@ print(20 * '-' + 'Begin Q4' + 20 * '-')
 print(20 * '-' + 'End Q4' + 20 * '-')
 
 
-
-
-
 # =================================================================
 # Class_Ex5:
 # Grab arbitrary paragraph from any website.
