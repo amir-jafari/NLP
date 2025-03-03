@@ -20,17 +20,8 @@ a single input feature. Sometimes they are also called 1-rules
 # Minimal XGBoost-Style Stump
 ###############################################################################
 class XGBoostStump:
-    """
-    A single-split 'tree' (stump) that uses second-order approximations
-    and L2 regularization to find an optimal threshold on one feature.
-    This is a simplified illustration of XGBoost logic for *binary* classification.
-    """
 
     def __init__(self, reg_lambda=1.0):
-        """
-        reg_lambda: float
-            L2 regularization strength (the 'lambda' in the theory).
-        """
         self.reg_lambda = reg_lambda
         self.feature_index_ = None
         self.threshold_ = None
@@ -38,16 +29,6 @@ class XGBoostStump:
         self.weight_right_ = 0.0
 
     def fit(self, X, grad, hess):
-        """
-        Fit one stump using second-order stats (grad, hess).
-
-        Parameters
-        ----------
-        X    : array-like of shape (n_samples, n_features)
-               TF–IDF features in dense or sparse format.
-        grad : array of shape (n_samples,) -- (p_i - y_i) for logistic loss
-        hess : array of shape (n_samples,) -- p_i * (1 - p_i)
-        """
         if hasattr(X, "toarray"):
             X = X.toarray()
 
@@ -76,8 +57,7 @@ class XGBoostStump:
                 G_right = np.sum(grad[right_mask])
                 H_right = np.sum(hess[right_mask])
 
-                # Gain formula for a split in second-order approximation (no gamma for simplicity):
-                # Gain = 0.5 * [G_left^2/(H_left + lambda) + G_right^2/(H_right + lambda) - G_total^2/(H_total + lambda)]
+
                 w_parent = (G_total**2) / (H_total + self.reg_lambda)
                 w_left   = (G_left**2)  / (H_left  + self.reg_lambda)
                 w_right  = (G_right**2) / (H_right + self.reg_lambda)
@@ -93,10 +73,6 @@ class XGBoostStump:
                     self.weight_right_ = - G_right / (H_right + self.reg_lambda)
 
     def predict(self, X):
-        """
-        Predict log-odds shift for each sample.
-        We'll add this shift to the existing model's log-odds.
-        """
         if self.feature_index_ is None:
             return np.full(X.shape[0], self.weight_left_)
 
@@ -113,33 +89,19 @@ class XGBoostStump:
 # XGBoost-Style Binary Classifier (stump-based)
 ###############################################################################
 class XGBoostBinaryClassifierScratch:
-    """
-    Minimal logistic regression boosting with second-order approximation.
-    Uses multiple XGBoostStumps in sequence to update log-odds predictions.
-    """
 
     def __init__(self, n_estimators=5, reg_lambda=1.0, learning_rate=0.1):
         self.n_estimators = n_estimators
         self.reg_lambda = reg_lambda
         self.learning_rate = learning_rate
         self.stumps_ = []
-        self.init_pred_ = 0.0  # global bias in log-odds space
+        self.init_pred_ = 0.0
 
     @staticmethod
     def _sigmoid(x):
         return 1.0 / (1.0 + np.exp(-x))
 
     def fit(self, X, y):
-        """
-        Fit the boosting model for binary classification.
-
-        Parameters
-        ----------
-        X : TF–IDF features, shape (n_samples, n_features) (sparse or dense)
-        y : binary labels (0 or 1), shape (n_samples,)
-        """
-        # Initialize log-odds with log(y_mean / (1 - y_mean))
-        # Add small clip to avoid log(0).
         eps = 1e-9
         y_mean = np.clip(np.mean(y), eps, 1 - eps)
         self.init_pred_ = np.log(y_mean / (1 - y_mean))
@@ -148,9 +110,9 @@ class XGBoostBinaryClassifierScratch:
         preds = np.full(X.shape[0], self.init_pred_)
 
         for _ in range(self.n_estimators):
-            p = self._sigmoid(preds)         # predicted probability
-            grad = (p - y)                   # first derivative
-            hess = p * (1.0 - p)            # second derivative
+            p = self._sigmoid(preds)
+            grad = (p - y)
+            hess = p * (1.0 - p)
 
             stump = XGBoostStump(reg_lambda=self.reg_lambda)
             stump.fit(X, grad, hess)
