@@ -14,7 +14,7 @@ if not os.path.exists(model_path):
 
 #%% --------------------------------------------------------------------------------------------------------------------
 sp = spm.SentencePieceProcessor(model_file=model_path)
-text = "Hello world!"
+text = "Natural Language Processing (NLP) enables computers to understand, interpret, and generate human language efficiently."
 pieces = sp.EncodeAsPieces(text)
 ids = sp.EncodeAsIds(text)
 print("Text:        ", text)
