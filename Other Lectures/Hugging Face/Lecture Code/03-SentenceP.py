@@ -17,6 +17,9 @@ sp = spm.SentencePieceProcessor(model_file=model_path)
 text = "Natural Language Processing (NLP) enables computers to understand, interpret, and generate human language efficiently."
 pieces = sp.EncodeAsPieces(text)
 ids = sp.EncodeAsIds(text)
+
+#%% --------------------------------------------------------------------------------------------------------------------
+print("Tokenizer Method: SentencePiece")
 print("Text:        ", text)
 print("Pieces:      ", pieces)
 print("IDs:         ", ids)
