@@ -1,14 +1,15 @@
 #%% --------------------------------------------------------------------------------------------------------------------
-from datasets import load_dataset
-from transformers import pipeline
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 #%% --------------------------------------------------------------------------------------------------------------------
-imdb_test = load_dataset("imdb", split="test[:3]")
-classifier = pipeline("sentiment-analysis")
+model_name = "distilbert-base-uncased-finetuned-sst-2-english"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
 #%% --------------------------------------------------------------------------------------------------------------------
-for sample in imdb_test:
-    text = sample["text"]
-    prediction = classifier(text)[0]
-    print(f"\nText:\n{text[:200]}...")
-    print("Sentiment Prediction:", prediction)
+text = "I love this movie!"
+inputs = tokenizer(text, return_tensors="pt")
+outputs = model(**inputs)
+logits = outputs.logits
+predicted_label = logits.argmax(dim=1).item()
+print(f"The predicted_label for the text 'I love this movie!' is {predicted_label}.")
