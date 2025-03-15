@@ -17,8 +17,10 @@ tokenizer = BartTokenizer.from_pretrained('facebook/bart-base')
 model = BartForConditionalGeneration.from_pretrained('facebook/bart-base')
 tokenized_ds = dataset.map(preprocess, batched=True)
 tokenized_ds.set_format('torch', columns=['input_ids', 'attention_mask', 'labels'])
-train_loader = DataLoader(tokenized_ds, batch_size=8, shuffle=True)
+train_loader = DataLoader(tokenized_ds, batch_size=32, shuffle=True, pin_memory=True)
 optimizer = optim.AdamW(model.parameters(), lr=3e-5)
+
+#%% --------------------------------------------------------------------------------------------------------------------
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 model.train()
