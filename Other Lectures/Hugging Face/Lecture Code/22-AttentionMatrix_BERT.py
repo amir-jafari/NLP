@@ -1,21 +1,25 @@
 #%% --------------------------------------------------------------------------------------------------------------------
-from transformers import BertTokenizer, BertModel
-import torch
 import matplotlib.pyplot as plt
+from transformers import AutoModel, AutoTokenizer
+import seaborn as sns
 
 #%% --------------------------------------------------------------------------------------------------------------------
-text = 'John went to the store. He bought some apples.'
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-inputs = tokenizer.encode_plus(text, return_tensors='pt')
+model_name = "bert-base-uncased"
+model = AutoModel.from_pretrained(model_name, output_attentions=True)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 #%% --------------------------------------------------------------------------------------------------------------------
-model = BertModel.from_pretrained('bert-base-uncased', output_attentions=True)
-outputs = model(**inputs)
-attentions = outputs.attentions
+inputs = tokenizer("The quick brown fox jumps over the lazy dog.", return_tensors="pt")
+embeddings = model.embeddings.word_embeddings(inputs['input_ids'])
+embeddings.retain_grad()
 
 #%% --------------------------------------------------------------------------------------------------------------------
-attn_mat = attentions[-1][0, 0].detach().numpy()
-plt.imshow(attn_mat, cmap='viridis')
-plt.colorbar()
-plt.title('Head 0 Attention (last layer)')
+outputs = model(inputs_embeds=embeddings)
+attention = outputs.attentions
+attention_matrix = attention[0][0][0].detach().numpy()
+
+#%% --------------------------------------------------------------------------------------------------------------------
+sns.heatmap(attention_matrix, xticklabels=tokenizer.convert_ids_to_tokens(inputs["input_ids"][0]),
+            yticklabels=tokenizer.convert_ids_to_tokens(inputs["input_ids"][0]), cmap="viridis")
+plt.title("Attention Weights")
 plt.show()
