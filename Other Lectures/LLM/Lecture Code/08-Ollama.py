@@ -17,7 +17,7 @@ def ollama_parallel_inference(model, texts):
     return [tokenizer.decode(output, skip_special_tokens=True) for output in outputs]
 
 #%% --------------------------------------------------------------------------------------------------------------------
-input_texts = ["Explain AI."]
+input_texts = ["Explain AI"]
 results = ollama_parallel_inference(model, input_texts)
 for res in results:
     print(res)
