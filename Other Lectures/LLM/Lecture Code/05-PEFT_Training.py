@@ -22,8 +22,7 @@ def compute_metrics(eval_predictions):
 #%% --------------------------------------------------------------------------------------------------------------------
 data = {
     "text": [ "I love puppies", "I hate this", "I adore cats", "I dislike chores", "I cherish sunshine", "I detest cold weather"],
-    "label": [1, 0, 1, 0, 1, 0]
-}
+    "label": [1, 0, 1, 0, 1, 0]}
 
 MODEL_NAME = "bert-base-uncased"
 dataset = HFDataset.from_dict(data)
@@ -32,7 +31,6 @@ eval_dataset = dataset.select(range(4, 6))
 
 #%% --------------------------------------------------------------------------------------------------------------------
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-
 train_dataset = train_dataset.map(tokenize_function, batched=True)
 eval_dataset = eval_dataset.map(tokenize_function, batched=True)
 train_dataset = train_dataset.remove_columns(["text"])
@@ -50,18 +48,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 peft_model.to(device)
 
 #%% --------------------------------------------------------------------------------------------------------------------
-training_args = TrainingArguments(
-    output_dir="peft-lora-bert",
-    eval_strategy="steps",
-    eval_steps=10,
-    save_steps=10,
-    num_train_epochs=3,
-    per_device_train_batch_size=2,
-    per_device_eval_batch_size=2,
-    logging_steps=5,
-    learning_rate=1e-4
-)
-
+training_args = TrainingArguments(output_dir="peft-lora-bert",eval_strategy="steps",eval_steps=10,save_steps=10,
+    num_train_epochs=3,per_device_train_batch_size=2,per_device_eval_batch_size=2,logging_steps=5,learning_rate=1e-4)
 trainer = Trainer(model=peft_model, args=training_args,train_dataset=train_dataset, eval_dataset=eval_dataset,
                   compute_metrics=compute_metrics)
 trainer.train()
