@@ -46,7 +46,7 @@ def main():
     model_id = "meta.llama3-70b-instruct-v1:0"
 
     # Prompt for the QA
-    prompt = "What is the capital of France?"
+    prompt = "What means NLP stand for in Computer Science Area?"
 
     # Query the model
     response = query_llama3_model(bedrock_client, model_id, prompt)
