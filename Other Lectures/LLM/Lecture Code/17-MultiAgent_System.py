@@ -1,25 +1,27 @@
-from typing import Annotated, Literal, Optional, List, Any
+# %% --------------------------------------------------------------------------------------------------------------------
+from typing import Annotated, Optional, List, Any
 import json
 import boto3
-from pydantic import Field
+from pydantic import Field, BaseModel
 from langchain.llms.base import LLM
-from langchain.schema import AIMessage, BaseMessage, HumanMessage
+from langchain.schema import AIMessage, BaseMessage, HumanMessage, SystemMessage
 from langchain_core.tools import tool
-from langgraph.graph import StateGraph, START, END
-from langgraph.graph import MessagesState
-from langgraph.types import Command
-from langgraph.prebuilt import create_react_agent
 from langchain_experimental.utilities import PythonREPL
+import requests
+import zlib
+import base64
 
 
+# %% ******************************* Please revise the "API_KEY" to Your own API_KEY **********************************
 class AWSBedrockConfig:
-    AWS_ACCESS_KEY_ID = "A"
-    AWS_SECRET_ACCESS_KEY = "A"
-    AWS_SESSION_TOKEN = "A"
+    AWS_ACCESS_KEY_ID = "API_KEY"
+    AWS_SECRET_ACCESS_KEY = "API_KEY"
+    AWS_SESSION_TOKEN = "API_KEY"
     REGION_NAME = "us-east-1"
-    MODEL_ID = "amazon.titan-embed-text-v2:0"
+    MODEL_ID = "anthropic.claude-3-5-sonnet-20240620-v1:0"
 
 
+# %% --------------------------------------------------------------------------------------------------------------------
 class MyBedrockLLM(LLM):
     model_id: str = Field(...)
     temperature: float = Field(default=0.7)
@@ -31,9 +33,7 @@ class MyBedrockLLM(LLM):
     session: Any = Field(default=None, exclude=True)
     client: Any = Field(default=None, exclude=True)
 
-    # THIS is the key addition: a bind_tools method
     def bind_tools(self, tool_classes):
-        # If you actually need the tools, store them. Otherwise, simply:
         return self
 
     def __init__(
@@ -95,16 +95,18 @@ class MyBedrockLLM(LLM):
         return AIMessage(content=text_output)
 
 
-@tool(description="Executes some custom action and returns a success message.")
+@tool
 def some_custom_tool(input_string: str) -> str:
+    """Executes some custom action and returns a success message."""
     return "SUCCESS"
 
 
 repl = PythonREPL()
 
 
-@tool(description="Executes Python code in a REPL environment")
+@tool
 def python_repl_tool(code: Annotated[str, "The python code to execute to generate your chart."]):
+    """Executes Python code in a REPL environment"""
     try:
         result = repl.run(code)
     except BaseException as e:
@@ -113,7 +115,44 @@ def python_repl_tool(code: Annotated[str, "The python code to execute to generat
     return result_str + "\n\nIf you have completed all tasks, respond with FINAL ANSWER."
 
 
-def make_system_prompt(suffix: str) -> str:
+class Agent:
+    def __init__(self, llm, system_prompt, tools=None, name=None):
+        self.llm = llm
+        self.system_prompt = system_prompt
+        self.tools = tools or []
+        self.name = name
+
+    def format_messages(self, conversation_history):
+        formatted_messages = [SystemMessage(content=self.system_prompt)]
+        for message in conversation_history:
+            if isinstance(message, tuple):
+                role, content = message
+                if role == "user":
+                    formatted_messages.append(HumanMessage(content=content))
+                else:
+                    formatted_messages.append(HumanMessage(content=content, name=role))
+            else:
+                formatted_messages.append(message)
+        return formatted_messages
+
+    def invoke(self, conversation_history):
+        messages = self.format_messages(conversation_history)
+        formatted_tools = ""
+        if self.tools:
+            formatted_tools = "\n\nTools available:\n"
+            for tool in self.tools:
+                formatted_tools += f"- {tool.__ne__}: {tool.__doc__ or 'No description'}\n"
+        prompt = f"{self.system_prompt}{formatted_tools}\n\n"
+        for msg in messages[1:]:  # Skip system message
+            sender = msg.name if hasattr(msg, 'name') and msg.name else "user"
+            prompt += f"{sender}: {msg.content}\n"
+        response = self.llm(prompt)
+        if self.name:
+            return HumanMessage(content=response.content, name=self.name)
+        return response
+
+
+def make_system_prompt(role_description: str) -> str:
     return (
         "You are a helpful AI assistant, collaborating with other assistants. "
         "Use the provided tools to progress towards answering the question. "
@@ -121,17 +160,11 @@ def make_system_prompt(suffix: str) -> str:
         "will help where you left off. Execute what you can to make progress. "
         "If you or any of the other assistants have the final answer or deliverable, "
         "prefix your response with FINAL ANSWER so the team knows to stop.\n"
-        f"{suffix}"
+        f"{role_description}"
     )
 
 
-def get_next_node(last_message: BaseMessage, goto: str):
-    if "FINAL ANSWER" in last_message.content:
-        return END
-    return goto
-
-
-def build_workflow():
+def build_multi_agent_system():
     bedrock_llm = MyBedrockLLM(
         model_id=AWSBedrockConfig.MODEL_ID,
         temperature=0.7,
@@ -141,54 +174,100 @@ def build_workflow():
         aws_secret_access_key=AWSBedrockConfig.AWS_SECRET_ACCESS_KEY,
         aws_session_token=AWSBedrockConfig.AWS_SESSION_TOKEN
     )
-
-    research_agent = create_react_agent(
-        bedrock_llm,
+    research_agent = Agent(
+        llm=bedrock_llm,
+        system_prompt=make_system_prompt("You can only do research. You are working with a chart generator colleague."),
         tools=[],
-        prompt=make_system_prompt("You can only do research. You are working with a chart generator colleague.")
+        name="researcher"
     )
-
-    def research_node(state: MessagesState) -> Command[Literal["chart_generator", END]]:
-        result = research_agent.invoke(state)
-        goto = get_next_node(result["messages"][-1], "chart_generator")
-        result["messages"][-1] = HumanMessage(content=result["messages"][-1].content, name="researcher")
-        return Command(update={"messages": result["messages"]}, goto=goto)
-
-    chart_agent = create_react_agent(
-        bedrock_llm,
+    chart_agent = Agent(
+        llm=bedrock_llm,
+        system_prompt=make_system_prompt("You can only generate charts. You are working with a researcher colleague."),
         tools=[python_repl_tool],
-        prompt=make_system_prompt("You can only generate charts. You are working with a researcher colleague.")
+        name="chart_generator"
     )
-
-    def chart_node(state: MessagesState) -> Command[Literal["researcher", END]]:
-        result = chart_agent.invoke(state)
-        goto = get_next_node(result["messages"][-1], "researcher")
-        result["messages"][-1] = HumanMessage(content=result["messages"][-1].content, name="chart_generator")
-        return Command(update={"messages": result["messages"]}, goto=goto)
-
-    workflow = StateGraph(MessagesState)
-    workflow.add_node("researcher", research_node)
-    workflow.add_node("chart_generator", chart_node)
-    workflow.add_edge(START, "researcher")
-    workflow.add_edge("researcher", "chart_generator")
-    workflow.add_edge("chart_generator", "researcher")
-
-    return workflow.compile()
+    return research_agent, chart_agent
 
 
-if __name__ == "__main__":
-    graph = build_workflow()
-    events = graph.stream(
-        {
-            "messages": [
-                (
-                    "user",
-                    "First, get the UK's GDP over the past 5 years, then make a line chart of it. Once you make the chart, finish."
-                )
-            ],
-        },
-        {"recursion_limit": 10},
-    )
-    for step in events:
-        print(step)
+def run_multi_agent_workflow(user_input, max_turns=10):
+    research_agent, chart_agent = build_multi_agent_system()
+    conversation_history = [("user", user_input)]
+    current_agent = research_agent
+    other_agent = chart_agent
+    print("Starting multi-agent workflow...")
+    print(f"User: {user_input}")
+
+    for turn in range(max_turns):
+        response = current_agent.invoke(conversation_history)
+        conversation_history.append(response)
+        print(f"{response.name}: {response.content}")
         print("----")
+        if "FINAL ANSWER" in response.content:
+            print("Workflow complete: Final answer provided.")
+            break
+        current_agent, other_agent = other_agent, current_agent
+
+    if turn >= max_turns - 1:
+        print("Workflow ended: Maximum turns reached")
+
+    return conversation_history
+
+
+# %% --------------------------------------------------------------------------------------------------------------------
+def to_kroki_url(diagram_type, diagram_text, output_format="svg"):
+    """
+    Compresses the diagram text with zlib, then base64 encodes it,
+    then returns a Kroki URL that should render the diagram.
+    """
+    compressed = zlib.compress(diagram_text.encode("utf-8"), 9)
+    encoded = base64.urlsafe_b64encode(compressed).decode("ascii")
+    return f"https://kroki.io/{diagram_type}/{output_format}/{encoded}"
+
+
+def conversation_to_mermaid_flowchart(conversation):
+    """
+    Convert the conversation array into a simple Mermaid flowchart.
+    Each message has a 'role' and 'content'.
+    We'll link them in the order they appear, starting at __start__ and ending at __end__.
+    """
+    lines = []
+    lines.append("flowchart TB")
+    lines.append("    __start__ --> user_0")
+    last_node = "user_0"
+    user_count = 0
+    assistant_count = 0
+    for i, msg in enumerate(conversation, start=1):
+        if isinstance(msg, tuple):
+            role, content = msg
+        else:
+            role = msg.name or "user"
+            content = msg.content
+
+        if role == "user":
+            user_count += 1
+            node_name = f"user_{user_count}"
+        else:
+            node_name = role
+
+        if node_name != last_node:
+            lines.append(f"    {last_node} --> {node_name}")
+        last_node = node_name
+    lines.append(f"    {last_node} --> __end__")
+    return "\n".join(lines)
+
+
+# %% --------------------------------------------------------------------------------------------------------------------
+if __name__ == "__main__":
+    user_query = "First, get the UK's GDP over the past 5 years, then make a line chart of it. Once you make the chart, finish."
+    conversation = run_multi_agent_workflow(user_query, max_turns=10)
+
+    # %% --------------------------------------------------------------------------------------------------------------------
+    mermaid_text = conversation_to_mermaid_flowchart(conversation)
+    url = to_kroki_url("mermaid", mermaid_text, output_format="png")
+    response = requests.get(url)
+    if response.status_code == 200:
+        with open("conversation_flow.png", "wb") as f:
+            f.write(response.content)
+        print("conversation_flow.png has been created from multi-agent conversation flow!")
+    else:
+        print("Error:", response.status_code, response.text)
