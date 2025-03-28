@@ -255,7 +255,6 @@ def conversation_to_mermaid_flowchart(conversation):
     lines.append(f"    {last_node} --> __end__")
     return "\n".join(lines)
 
-
 # %% --------------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     user_query = "First, get the UK's GDP over the past 5 years, then make a line chart of it. Once you make the chart, finish."

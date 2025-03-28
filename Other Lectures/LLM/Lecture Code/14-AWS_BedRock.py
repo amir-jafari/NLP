@@ -1,3 +1,4 @@
+# %% --------------------------------------------------------------------------------------------------------------------
 import boto3
 from botocore.exceptions import ClientError
 import json
@@ -5,6 +6,7 @@ import os
 from dotenv import load_dotenv
 from configparser import ConfigParser, ExtendedInterpolation
 
+# %% --------------------------------------------------------------------------------------------------------------------
 def load_configuration():
     load_dotenv()
     config_file = 'config.ini'
@@ -35,24 +37,16 @@ def query_llama3_model(client, model_id, prompt):
         print(f"An error occurred: {e}")
         return None
 
+# %% --------------------------------------------------------------------------------------------------------------------
 def main():
-    # Load configuration
     config = load_configuration()
-
-    # Create a Bedrock Runtime client
     bedrock_client = create_bedrock_client(config)
-
-    # Set the model ID
     model_id = "meta.llama3-70b-instruct-v1:0"
-
-    # Prompt for the QA
     prompt = "What means NLP stand for in Computer Science Area?"
-
-    # Query the model
     response = query_llama3_model(bedrock_client, model_id, prompt)
-
     if response:
         print(f"Model Response: {response}")
 
+# %% --------------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     main()
