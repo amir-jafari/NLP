@@ -3,14 +3,15 @@ import boto3
 from botocore.exceptions import ClientError
 import json
 import os
+import difflib
 from dotenv import load_dotenv  # pip install python-dotenv
 from configparser import ConfigParser, ExtendedInterpolation
 
 def load_configuration():
     load_dotenv()
-    config_file = os.environ['CONFIG_FILE']
+    config_file = 'config.ini'
     config = ConfigParser(interpolation=ExtendedInterpolation())
-    config.read(f"../../config/{config_file}")
+    config.read(config_file)
     return config
 
 def create_bedrock_client(config):
@@ -21,18 +22,19 @@ def create_bedrock_client(config):
     )
     return session.client("bedrock-runtime", region_name="us-east-1")
 
-def query_llama2_model(client, model_id, prompt):
+def query_llama3_70b_instruct_model(client, model_id, prompt):
     body_content = {
-        "prompt": prompt
+        "prompt": prompt,
     }
+
     try:
         response = client.invoke_model(
             modelId=model_id,
             body=json.dumps(body_content),
-            contentType="application/json",  # Adjust if needed
+            contentType="application/json",
             accept="application/json"
         )
-        response_body = response['body'].read().decode()
+        response_body = response["body"].read().decode()
         return response_body
     except ClientError as e:
         print(f"An error occurred: {e}")
@@ -42,20 +44,21 @@ def query_llama2_model(client, model_id, prompt):
 def main():
     config = load_configuration()
     bedrock_client = create_bedrock_client(config)
-    model_id = "meta.llama2-7b-chat-v1:0"
+    model_id = "meta.llama3-70b-instruct-v1:0"  # Adjust if necessary
+
     naive_prompt = "Explain the Apollo moon missions."
     improved_prompt = (
-        "You are a space historian. Explain in detail the significance of NASA’s Apollo moon "
+        "Explain in detail the significance of NASA’s Apollo moon "
         "missions, highlighting key achievements and their impact on science and society."
     )
 
     print("\n--- Naïve Prompt ---")
-    naive_response = query_llama2_model(bedrock_client, model_id, naive_prompt)
+    naive_response = query_llama3_70b_instruct_model(bedrock_client, model_id, naive_prompt)
     if naive_response:
         print("Naïve Response:\n", naive_response)
 
     print("\n--- Improved Prompt ---")
-    improved_response = query_llama2_model(bedrock_client, model_id, improved_prompt)
+    improved_response = query_llama3_70b_instruct_model(bedrock_client, model_id, improved_prompt)
     if improved_response:
         print("Improved Response:\n", improved_response)
 
