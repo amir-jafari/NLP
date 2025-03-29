@@ -1,69 +1,105 @@
 #%% --------------------------------------------------------------------------------------------------------------------
-import os
+# packages
 import torch
-from datasets import Dataset
-from transformers import (AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments,
-                          DataCollatorForLanguageModeling)
+from datasets import load_dataset
+from transformers import (
+    AutoTokenizer,
+    AutoModelForCausalLM,
+    Trainer,
+    TrainingArguments,
+    DataCollatorForLanguageModeling,
+    BitsAndBytesConfig
+)
 from peft import LoraConfig, get_peft_model
 
-def tokenize_function(example):
-    return tokenizer(example["text"], truncation=True, max_length=64)
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model_name = "gpt2-xl"
-
 #%% --------------------------------------------------------------------------------------------------------------------
-model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16).to(device)
-lora_config = LoraConfig(r=64,lora_alpha=16,target_modules=["c_attn", "c_proj"],lora_dropout=0.05,
-                         bias="none",task_type="CAUSAL_LM")
+# model and QLoRA config
+model_name = "gpt2-medium"
+quant_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_use_double_quant=True,
+    bnb_4bit_compute_dtype=torch.float16
+)
+model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    quantization_config=quant_config,
+    device_map="auto"
+)
+lora_config = LoraConfig(
+    r=8,
+    lora_alpha=16,
+    target_modules=["c_attn"],
+    lora_dropout=0.05,
+    bias="none",
+    task_type="CAUSAL_LM"
+)
 model = get_peft_model(model, lora_config)
 model.print_trainable_parameters()
 
 #%% --------------------------------------------------------------------------------------------------------------------
-train_texts = [
-    "The cat sat on the mat.",
-    "Large language models can produce human-like text.",
-    "Once upon a time, a hero rose to the challenge in a faraway land.",
-    "Quantization is a great technique to reduce memory footprint."
-]
-
-dataset = Dataset.from_dict({"text": train_texts})
-dataset = dataset.train_test_split(test_size=0.2)
-train_dataset = dataset["train"]
-eval_dataset = dataset["test"]
+# load dataset
+dataset = load_dataset("wikitext", "wikitext-2-raw-v1")
+train_data = dataset["train"].shuffle(seed=42).select(range(1000))
+eval_data = dataset["validation"].shuffle(seed=42).select(range(200))
 
 #%% --------------------------------------------------------------------------------------------------------------------
+# tokenizer
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
 
-train_dataset = train_dataset.map(tokenize_function)
-eval_dataset = eval_dataset.map(tokenize_function)
-train_dataset.set_format("torch")
-eval_dataset.set_format("torch")
-train_dataset = train_dataset.remove_columns(["text"])
-eval_dataset = eval_dataset.remove_columns(["text"])
+def tokenize_function(examples):
+    return tokenizer(examples["text"], truncation=True, max_length=64)
+
+train_data = train_data.map(tokenize_function, batched=True, remove_columns=["text"])
+eval_data = eval_data.map(tokenize_function, batched=True, remove_columns=["text"])
+
+train_data = train_data.filter(lambda x: len(x["input_ids"]) > 0)
+eval_data = eval_data.filter(lambda x: len(x["input_ids"]) > 0)
+
+train_data.set_format("torch")
+eval_data.set_format("torch")
 
 #%% --------------------------------------------------------------------------------------------------------------------
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
-
-#%% --------------------------------------------------------------------------------------------------------------------
-training_args = TrainingArguments(output_dir="dummy_dir",save_strategy='no', eval_strategy="no",
-    per_device_train_batch_size=1,per_device_eval_batch_size=1, logging_steps=5,
-    eval_steps=10, save_steps=10, num_train_epochs=1, learning_rate=1e-4,
-    fp16=torch.cuda.is_available(), gradient_accumulation_steps=4
+training_args = TrainingArguments(
+    output_dir="lora_4bit_out",
+    evaluation_strategy="epoch",
+    num_train_epochs=1,
+    per_device_train_batch_size=4,
+    per_device_eval_batch_size=4,
+    logging_steps=5,
+    save_strategy="no",
+    learning_rate=1e-4,
+    gradient_accumulation_steps=2
+)
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    data_collator=data_collator,
+    train_dataset=train_data,
+    eval_dataset=eval_data
 )
 
 #%% --------------------------------------------------------------------------------------------------------------------
-trainer = Trainer(model=model, args=training_args, train_dataset=train_dataset,
-                  eval_dataset=eval_dataset, data_collator=data_collator)
+# train
 trainer.train()
+model.eval()
 
 #%% --------------------------------------------------------------------------------------------------------------------
-model.eval()
-prompt = "Once upon a time,"
-inputs = tokenizer(prompt, return_tensors="pt").to(device)
+test_prompt = "What is Natural Language Processing?"
+inputs = tokenizer(test_prompt, return_tensors="pt")
+if torch.cuda.is_available():
+    inputs = {k: v.to("cuda") for k, v in inputs.items()}
+
 with torch.no_grad():
-    outputs = model.generate(**inputs, max_new_tokens=50, do_sample=True,
-                             top_p=0.9, temperature=0.8)
-print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+    output_ids = model.generate(
+        **inputs,
+        max_new_tokens=40,
+        do_sample=True,
+        top_p=0.9,
+        temperature=0.8
+    )
+
+print(tokenizer.decode(output_ids[0], skip_special_tokens=True))
