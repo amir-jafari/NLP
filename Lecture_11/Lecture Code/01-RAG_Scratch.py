@@ -24,6 +24,9 @@ ollama pull hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF
 """
 pip install ollama
 """
+
+# If you cannot use ollama, you can create a new environment in the remote deployment.
+# It is better to create a new envir for transformers, LLM, RAG usage, and set it up when you use remote deployment
 #%% --------------------------------------------------------------------------------------------------------------------
 import ollama
 #%% --------------------------------------------------------------------------------------------------------------------
@@ -75,7 +78,7 @@ instruction_prompt = f'''You are a helpful chatbot.
 Use only the following pieces of context to answer the question. Don't make up any new information:
 {'\n'.join([f' - {chunk}' for chunk, similarity in retrieved_knowledge])}
 '''
-
+#%% --------------------------------------------------------------------------------------------------------------------
 stream = ollama.chat(
   model=LANGUAGE_MODEL,
   messages=[

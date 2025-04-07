@@ -7,16 +7,12 @@
 import deeplake
 from deeplake import types
 import numpy as np
-
 #%% --------------------------------------------------------------------------------------------------------------------
 # 1) Create an offline dataset locally
 ds = deeplake.create("file://my_local_vectorstore")
-
 ds.add_column("text", types.Text(index_type=types.BM25))
 ds.add_column("embedding", types.Embedding(768))
-
 ds.commit()
-
 #%% --------------------------------------------------------------------------------------------------------------------
 # 2) Append data (TEXT & EMBEDDINGS)
 documents = [
@@ -31,7 +27,6 @@ ds.append({
     "embedding": embeddings
 })
 ds.commit()
-
 #%% --------------------------------------------------------------------------------------------------------------------
 # 3) Re-open the dataset offline, and do a quick vector query
 ds_opened = deeplake.open("file://my_local_vectorstore")
@@ -49,6 +44,7 @@ FROM (
 ORDER BY score DESC
 LIMIT 2
 """
+#%% --------------------------------------------------------------------------------------------------------------------
 results = ds_opened.query(tql)
 for row in results:
     print(f"[score={row['score']:.3f}] {row['text']}")
