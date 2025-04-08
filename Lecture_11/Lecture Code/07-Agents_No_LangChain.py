@@ -30,7 +30,7 @@ def run_agent(query: str):
         {
             "role": "system",
             "content": (
-                "You are a helpful assistant who can think step by step. "
+                "Assistant who can think step by step. "
                 "When you want to use a tool, follow this format:\n\n"
                 "Tool: <tool_name>\nTool Input: <input>\n\n"
                 "When you are ready to provide a final answer, write:\n\n"

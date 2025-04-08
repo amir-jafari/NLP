@@ -7,13 +7,10 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 #%% --------------------------------------------------------------------------------------------------------------------
 parser = configparser.ConfigParser()
 parser.read("config.ini")
-aws_access_key_id = parser["BedRock_LLM_API"]["aws_access_key_id"]
-aws_secret_access_key = parser["BedRock_LLM_API"]["aws_secret_access_key"]
-aws_session_token = parser["BedRock_LLM_API"]["aws_session_token"]
 bedrock_client = boto3.client(service_name="bedrock-runtime", region_name="us-east-1",
-    aws_access_key_id=aws_access_key_id,
-    aws_secret_access_key=aws_secret_access_key,
-    aws_session_token=aws_session_token)
+    aws_access_key_id=parser["BedRock_LLM_API"]["aws_access_key_id"],
+    aws_secret_access_key=parser["BedRock_LLM_API"]["aws_secret_access_key"],
+    aws_session_token=parser["BedRock_LLM_API"]["aws_session_token"])
 @tool
 def get_word_length(word: str) -> int:
     return len(word)
