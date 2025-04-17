@@ -44,7 +44,7 @@ class CustomLLM(LLM):
         return "custom"
 #%% --------------------------------------------------------------------------------------------------------------------
 documents = [
-    Document(page_content="LangChain is a framework for building LLM-powered applications."),
+    Document(page_content="LangChain is a framework for building 12-LLM-powered applications."),
     Document(page_content="It helps you chain together different components to create more advanced apps.")
 ]
 embedding_function = FakeEmbeddings(size=4)  # Placeholder
