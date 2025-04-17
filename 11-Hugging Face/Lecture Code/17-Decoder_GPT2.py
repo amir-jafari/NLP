@@ -7,7 +7,7 @@ tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
 model = GPT2LMHeadModel.from_pretrained('gpt2')
 
 #%% --------------------------------------------------------------------------------------------------------------------
-prompt = 'Transformers are'
+prompt = '13-Transformers are'
 input_ids = tokenizer.encode(prompt, return_tensors='pt')
 
 #%% --------------------------------------------------------------------------------------------------------------------

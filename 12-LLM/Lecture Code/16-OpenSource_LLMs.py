@@ -3,7 +3,7 @@ import torch
 from transformers import pipeline
 
 #%% --------------------------------------------------------------------------------------------------------------------
-# Tips: If you have enough time, you can change the model id through searching the model on Hugging Face.
+# Tips: If you have enough time, you can change the model id through searching the model on 11-Hugging Face.
 #       More parameter model will have a better result.
 model_id = "EleutherAI/gpt-neo-1.3B"
 pipe = pipeline(task="text-generation",model=model_id,

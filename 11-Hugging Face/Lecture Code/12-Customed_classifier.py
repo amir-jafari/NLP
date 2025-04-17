@@ -19,7 +19,7 @@ class CustomClassifier(nn.Module):
 #%% --------------------------------------------------------------------------------------------------------------------
 model = CustomClassifier()
 tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-encodings = tokenizer("I love using Hugging Face!", return_tensors="pt")
+encodings = tokenizer("I love using 11-Hugging Face!", return_tensors="pt")
 with torch.no_grad():
     logits = model(input_ids=encodings["input_ids"], attention_mask=encodings["attention_mask"])
     pred = torch.argmax(logits, dim=-1)

@@ -9,7 +9,7 @@ from langchain_community.vectorstores import FAISS
 from langchain.indexes import VectorstoreIndexCreator
 #%% --------------------------------------------------------------------------------------------------------------------
 parser = configparser.ConfigParser()
-parser.read("/tmp/pycharm_project_488/Lecture_11/Lecture Code/config.ini")
+parser.read("/tmp/pycharm_project_488/14-Agents_RAG/Lecture Code/config.ini")
 client = boto3.client(
     service_name="bedrock-runtime",
     region_name="us-east-1",

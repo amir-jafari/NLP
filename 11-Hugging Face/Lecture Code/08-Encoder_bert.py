@@ -8,7 +8,7 @@ model = BertForSequenceClassification.from_pretrained("bert-base-uncased")
 model.eval()
 
 #%% --------------------------------------------------------------------------------------------------------------------
-text = "Hello NLP class - Hugging Face Lecture!"
+text = "Hello NLP class - 11-Hugging Face Lecture!"
 inputs = tokenizer(text, return_tensors="pt")
 
 #%% --------------------------------------------------------------------------------------------------------------------

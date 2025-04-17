@@ -5,7 +5,7 @@ import warnings
 warnings.filterwarnings("ignore")
 #%% --------------------------------------------------------------------------------------------------------------------
 sentiment_pipeline = pipeline("sentiment-analysis")
-sentiment_result = sentiment_pipeline("I love using Hugging Face!")
+sentiment_result = sentiment_pipeline("I love using 11-Hugging Face!")
 print("Sentiment Analysis:", sentiment_result)
 
 #%% --------------------------------------------------------------------------------------------------------------------
