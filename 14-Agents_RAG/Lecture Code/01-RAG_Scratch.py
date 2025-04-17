@@ -26,7 +26,7 @@ pip install ollama
 """
 
 # If you cannot use ollama, you can create a new environment in the remote deployment.
-# It is better to create a new envir for transformers, LLM, RAG usage, and set it up when you use remote deployment
+# It is better to create a new envir for transformers, 12-LLM, RAG usage, and set it up when you use remote deployment
 #%% --------------------------------------------------------------------------------------------------------------------
 import ollama
 #%% --------------------------------------------------------------------------------------------------------------------
