@@ -66,7 +66,7 @@ print(20*'-' + 'End Q4' + 20*'-')
 #  - Agent A: Writes a short piece of text
 #  - Agent B: Edits it for style
 #  - Agent C: Fact-checks by rewriting or printing a "verified" statement
-# Step 1: Create three separate prompts or “roles” for your LLM, each representing an agent.
+# Step 1: Create three separate prompts or “roles” for your 12-LLM, each representing an agent.
 # Step 2: Pass the output from one agent as input to the next.
 # ----------------------------------------------------------------------------------------------------------------------
 print(20*'-' + 'Begin Q5' + 20*'-')

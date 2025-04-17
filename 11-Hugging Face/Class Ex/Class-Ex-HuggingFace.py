@@ -28,7 +28,7 @@ train_ds.set_format('torch', columns=['input_ids', 'attention_mask', 'label'])
 # ======================================================================================================================
 # Class_Ex1:
 # How can you quickly fine-tune a tiny BERT model on AG_NEWS dataset?
-# Step 1: Use Hugging Face's Trainer API.
+# Step 1: Use 11-Hugging Face's Trainer API.
 # Step 2: Train and evaluate the performance.
 # ----------------------------------------------------------------------------------------------------------------------
 print(20*'-' + 'Begin Q1' + 20*'-')
