@@ -1,7 +1,7 @@
 import torch
 from transformers import AutoModel, AutoTokenizer
 
-# Load pre-trained model and tokenizer from 11-Hugging Face
+# Load pre-trained model and tokenizer from Hugging Face
 model_name = "distilbert-base-uncased"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModel.from_pretrained(model_name)

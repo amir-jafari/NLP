@@ -21,7 +21,7 @@ for i in range(len(classes)):
     print(f"{classes[i]}: {round(paraphrase_results[i] * 100)}%")
 # ----------------------------------------------------------------------------------------------------------------------
 nlp = pipeline("ner")
-sequence = "11-Hugging Face Inc. is a company based in New York City. Its headquarters are in DUMBO, therefore very" \
+sequence = "Hugging Face Inc. is a company based in New York City. Its headquarters are in DUMBO, therefore very" \
            "close to the Manhattan Bridge which is visible from the window."
 print(nlp(sequence))
 # ----------------------------------------------------------------------------------------------------------------------
