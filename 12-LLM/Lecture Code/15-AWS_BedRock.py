@@ -9,7 +9,7 @@ from configparser import ConfigParser, ExtendedInterpolation
 # %% --------------------------------------------------------------------------------------------------------------------
 def load_configuration():
     load_dotenv()
-    config_file = 'config.ini'
+    config_file = '../../12-LLM/Lecture Code/config.ini'
     config = ConfigParser(interpolation=ExtendedInterpolation())
     config.read(f'{config_file}')
     return config
