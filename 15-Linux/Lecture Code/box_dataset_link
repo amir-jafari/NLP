@@ -1,0 +1,2 @@
+wget -O 'corpus.zip' 'https://gwu.box.com/shared/static/keps7nlt0dyc01ldp1vrsykh8wpn6v20.zip'
+wget -O 'big_corpus.zip' 'https://gwu.box.com/shared/static/54k67360xyp7f3s8zuq5j1v6nktl8awp.zip'
