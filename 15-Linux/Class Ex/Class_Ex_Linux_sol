@@ -1,0 +1,188 @@
+#!/usr/bin/env bash
+#
+# exercises.sh
+# A Bash script that prints a series of Linux/shell-related class exercises.
+
+cat <<'EOF'
+
+=====================================================
+ LINUX CLASS EXERCISES
+=====================================================
+
+Exercise 1: Text Processing Pipeline
+------------------------------------
+Q1:
+You have a file named corpus.txt with mixed-case text. Convert all text to lowercase,
+split tokens by non-alphanumeric characters, remove stopwords stored in stopwords.txt,
+and display the top 10 most frequent words.
+
+Hint:
+Use tr for case conversion and splitting, grep -v -w -f for removing stopwords,
+sort and uniq -c for counting duplicates, then sort -nr and head.
+
+Solution:
+  tr '[:upper:]' '[:lower:]' < corpus.txt |
+  tr -c '[:alnum:]' '\n'                 |
+  grep -v -w -f stopwords.txt            |
+  sort |
+  uniq -c |
+  sort -nr |
+  head
+
+
+Exercise 2: grep Flags
+----------------------
+Q2:
+Explain what each of these grep flags does: -F, -w, -v, and -f <file>.
+
+Hint:
+Check man grep or grep --help to see how each flag modifies search behavior.
+
+Solution:
+  -F : Use fixed strings instead of regular expressions
+  -w : Match whole words only
+  -v : Invert the match (show lines that do not match)
+  -f <file> : Read the pattern(s) from the given file
+
+
+Exercise 3: Shell Script Safety
+-------------------------------
+Q3:
+Why might you place 'set -euo pipefail' at the top of a Bash script? 
+Briefly explain what -e, -u, and -o pipefail do.
+
+Hint:
+They help catch errors early and prevent unexpected behavior.
+
+Solution:
+  -e : Exit immediately if any command has a non-zero status
+  -u : Treat unset variables as errors and exit immediately
+  -o pipefail : The pipeline fails if any command in it fails
+
+
+Exercise 4: Command-Line Arguments
+----------------------------------
+Q4:
+You have a script that accepts optional arguments --model, --epochs, and --corpus.
+Show a snippet that parses these flags in a while [[ $# -gt 0 ]] ... loop using case.
+
+Hint:
+Store "$2" in a variable, then shift 2 to remove the flag and its value.
+
+Solution:
+  MODEL="bert-base-uncased"
+  EPOCHS=3
+  CORPUS="my_corpus.txt"
+
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      --model)
+        MODEL=$2
+        shift 2
+        ;;
+      --epochs)
+        EPOCHS=$2
+        shift 2
+        ;;
+      --corpus)
+        CORPUS=$2
+        shift 2
+        ;;
+      *)
+        echo "Unknown flag: $1"
+        exit 1
+        ;;
+    esac
+  done
+
+
+Exercise 5: Simple Counters in a Sentiment Script
+-------------------------------------------------
+Q5:
+You have counters pos=0, neg=0, and neu=0. Each line is classified as POS, NEG, or NEU.
+Show how you'd increment these counters based on a variable label.
+
+Hint:
+Use a case block with ((...)) arithmetic.
+
+Solution:
+  case $label in
+    POS) ((pos++));;
+    NEG) ((neg++));;
+    *)   ((neu++));;
+  esac
+
+
+Exercise 6: Sorting and Counting
+--------------------------------
+Q6:
+Count how many times each word occurs in words.txt, then list them in descending order.
+
+Hint:
+Use sort, uniq -c, then sort -nr.
+
+Solution:
+  sort words.txt |
+  uniq -c        |
+  sort -nr
+
+
+Exercise 7: Date and Logging
+----------------------------
+Q7:
+A script uses TIMESTAMP=$(date +"%Y%m%d_%H%M%S"). Why might you include the timestamp
+in folder names or log files?
+
+Hint:
+Helps keep track of runs and avoid overwriting old data.
+
+Solution:
+Use it to create unique directories or log files, e.g.,
+  logs_20250425_143200.txt
+or
+  run_20250425_143200/
+
+
+Exercise 8: Directory Management
+--------------------------------
+Q8:
+Explain mkdir -p "$DATA_DIR" "$RUN_DIR" "$REPORT_DIR" and why -p is helpful.
+
+Hint:
+-p creates parent directories as needed. Without it, mkdir fails if the parent dirs
+do not exist.
+
+Solution:
+-p ensures intermediate directories are created, avoiding errors if the path
+is not already there.
+
+
+Exercise 9: Exit Codes
+----------------------
+Q9:
+Why check the exit code of commands or rely on set -e in a pipeline?
+
+Hint:
+A command might fail silently and the script would continue with incomplete or
+invalid data.
+
+Solution:
+Exiting on a failed command ensures the pipeline stops. This prevents corrupted
+or meaningless results from subsequent steps.
+
+
+Exercise 10: Combining Shell and Python
+---------------------------------------
+Q10:
+Why use shell for certain tasks (file manipulation, environment setup) and Python
+for others (tokenization, training models) in the same pipeline?
+
+Hint:
+Shell is good for quick, simple file ops. Python is better for complex logic, data
+structures, and ML libraries.
+
+Solution:
+Each tool excels in different domains. Combining both allows each step to be done
+in the most efficient, clear way.
+
+EOF
