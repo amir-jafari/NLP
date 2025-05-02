@@ -2,6 +2,17 @@
 set -euo pipefail
 
 FILE=${1:-big_corpus.txt}
+
+if [ ! -f "$FILE" ]; then
+  echo "Could not find $FILE, downloading big_corpus.zip..."
+  wget -O 'big_corpus.zip' 'https://gwu.box.com/shared/static/54k67360xyp7f3s8zuq5j1v6nktl8awp.zip'
+  echo "Unzipping big_corpus.zip..."
+  unzip big_corpus.zip
+  echo "$FILE downloaded and unzipped."
+else
+  echo "$FILE already exists, skipping download."
+fi
+
 PATTERN="transformer"
 N=5
 
