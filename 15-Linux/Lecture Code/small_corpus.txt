@@ -1,0 +1,65 @@
+Transformers have revolutionised natural-language processing.
+A single transformer layer contains multi-head self-attention.
+Vision Transformer (ViT) brought transformer blocks to computer vision.
+Smaller transformer models can match BERT when distilled.
+The word “Transformer” comes from sequence-to-sequence translation.
+A GPU kernel spent 73 ms on the GELU activation.
+In 2017 Google released the paper “Attention Is All You Need.”
+attention_is_all_you_need.pdf  md5: 09f1230abcde
+GPT-4 uses a transformer backbone with Mixture-of-Experts routing.
+gpt4_internal_notes.txt  (restricted)
+transformer XL extends context by segment-level recurrence.
+Branched Transformer Networks mix attention with convolutions.
+“TRANSFORMER” in all-caps still matches with grep -i.
+Conformer combines convolution and transformer layers for speech.
+FAIR’s Dino-v2 pre-trains a self-supervised Vision Transformer.
+
+
+Recurrent Neural Networks once dominated language modelling.
+A cactus can survive two years without water.
+“Dog” is /dɔːɡ/ in the IPA notation.
+Imagenet-1K has 1 281 167 training images across 1 000 classes.
+printf("Hello, World\n");
+The quick brown fox jumps over the lazy dog.
+I refuse to explain this joke: you’d need to understand multithreading.
+TensorFlow 2.x introduced eager execution by default.
+XGBoost uses gradient-boosted decision trees.
+
+The TRANSFORMER approach scales with data and compute.
+Facebook’s DEiT shows that data-efficient transformers are possible.
+Microsoft’s Swin Transformer shifts windows for locality.
+
+art
+artist
+partial
+part
+particle
+Transformer
+transformation
+Transformers
+transform
+transformer-based
+transformational
+
+sorting
+hashing
+sampling
+vectorizing
+fine-tuning
+zero-shot-learning
+prompt-engineering
+
+Line 75  – nothing special here
+Line 76  – still nothing
+Line 77  – “Error: no such file”
+Line 78  – transformer appears again in the noise
+Line 79  – ERROR upper case
+Line 80  – error lower case
+
+No match on this line.
+Nor on this one.
+Definitely no transformer here.
+
+transformer
+	Transformer with leading tab
+EOF
