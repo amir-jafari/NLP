@@ -20,12 +20,7 @@ test_labels = np.array(ds["test"]["label"][:1000])
 #%% --------------------------------------------------------------------------------------------------------------------
 pos_words = {"good","great","excellent","amazing","love","wonderful","best","awesome"}
 neg_words = {"bad","terrible","poor","hate","awful","worst"}
-sentiment_analyzer = pipeline(
-    "sentiment-analysis",
-    model="distilbert-base-uncased-finetuned-sst-2-english",
-    device=device
-)
-
+sentiment_analyzer = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english", device=device)
 def compute_kg_features(txts):
     feats = []
     for t in txts:
@@ -37,7 +32,6 @@ def compute_kg_features(txts):
         val = score["score"] if score["label"]=="POSITIVE" else -score["score"]
         feats.append([pos, neg, ratio, val])
     return np.array(feats)
-
 kg_train = compute_kg_features(texts)
 kg_test  = compute_kg_features(test_texts)
 #%% --------------------------------------------------------------------------------------------------------------------
@@ -64,6 +58,6 @@ def run(use_kg):
     print("Best C:", gs.best_params_["C"])
     print("Acc:", accuracy_score(test_labels,p))
     print(classification_report(test_labels,p,zero_division=0))
-
+#%% --------------------------------------------------------------------------------------------------------------------
 run(False)
 run(True)
