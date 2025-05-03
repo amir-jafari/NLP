@@ -12,11 +12,9 @@ class KnowledgeAwareNLPModel:
         self.model = GPT2LMHeadModel.from_pretrained(model_name).to(self.device)
         self.model.config.pad_token_id = self.tokenizer.eos_token_id
         self.optimizer = AdamW(self.model.parameters(), lr=lr)
-
     def preprocess_text(self, text: str) -> str:
         text = text.lower()
         return re.sub(r"[^\w\s]", "", text).strip()
-
     def prepare_inputs(self, text: str, kg_facts=None) -> dict:
         clean = self.preprocess_text(text)
         if kg_facts:
@@ -24,7 +22,6 @@ class KnowledgeAwareNLPModel:
             clean += f"\nRelevant Facts: {facts}\n"
         encoded = self.tokenizer(clean, return_tensors="pt", padding=True, truncation=True)
         return {k: v.to(self.device) for k, v in encoded.items()}
-
     def generate_text(self, prompt: str, kg_facts=None, max_length: int = 50) -> str:
         inputs = self.prepare_inputs(prompt, kg_facts)
         output = self.model.generate(
@@ -37,7 +34,6 @@ class KnowledgeAwareNLPModel:
             pad_token_id=self.model.config.pad_token_id
         )
         return self.tokenizer.decode(output[0], skip_special_tokens=True)
-
     def fine_tune_step(self, text: str, kg_facts=None) -> float:
         self.model.train()
         clean = self.preprocess_text(text)
