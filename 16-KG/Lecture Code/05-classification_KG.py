@@ -47,7 +47,7 @@ class ClassificationDataset(Dataset):
         return {"input_ids": enc["input_ids"].squeeze().to(device),
                 "attention_mask": enc["attention_mask"].squeeze().to(device),
                 "labels": torch.tensor(self.labels[idx]).to(device)}
-
+#%% --------------------------------------------------------------------------------------------------------------------
 def train(model, loader, optimizer):
     model.train()
     for b in loader:
@@ -55,7 +55,6 @@ def train(model, loader, optimizer):
         loss = model(input_ids=b["input_ids"], attention_mask=b["attention_mask"], labels=b["labels"]).loss
         loss.backward()
         optimizer.step()
-
 def evaluate(model, loader):
     model.eval(); preds, trues = [], []
     with torch.no_grad():
@@ -64,18 +63,15 @@ def evaluate(model, loader):
             preds.extend(torch.argmax(logits, dim=1).cpu().numpy())
             trues.extend(b["labels"].cpu().numpy())
     return trues, preds
-
 for use_kg in [False, True]:
     ds_tr = ClassificationDataset(train_texts, train_labels, train_facts, tokenizer, use_kg=use_kg)
     ds_te = ClassificationDataset(test_texts, test_labels, test_facts, tokenizer, use_kg=use_kg)
     lt = DataLoader(ds_tr, batch_size=16, shuffle=True)
     le = DataLoader(ds_te, batch_size=16)
-
     model = AutoModelForSequenceClassification.from_pretrained("distilbert-base-uncased", num_labels=2).to(device)
     opt = AdamW(model.parameters(), lr=2e-5)
     train(model, lt, opt)
     true, pred = evaluate(model, le)
-
     print(f"\n=== {'With' if use_kg else 'Without'} KG ===")
     print(f"Acc: {accuracy_score(true, pred):.2f}")
     print(classification_report(true, pred, zero_division=0))
