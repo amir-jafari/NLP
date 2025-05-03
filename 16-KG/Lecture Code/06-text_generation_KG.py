@@ -55,17 +55,14 @@ class KnowledgeAwareNLPModel:
 if __name__ == "__main__":
     gen = KnowledgeAwareNLPModel()
     prompt = "In modern NLP pipelines"
-
     print("\n=== Without KG Facts ===")
     print(gen.generate_text(prompt, max_length=60))
-
     print("\n=== With KG Facts ===")
     facts = [
         "Transformer models excel at contextual understanding.",
         "Fine-tuning adapts models to specific tasks."
     ]
     print(gen.generate_text(prompt, kg_facts=facts, max_length=60))
-
     loss = gen.fine_tune_step(
         "NLP stands for Natural Language Processing.",
         kg_facts=[
