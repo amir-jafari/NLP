@@ -9,62 +9,33 @@ from networkx.algorithms.community import greedy_modularity_communities
 # Q1: Load the Karate Club graph. Print the number of nodes and edges.
 #     Hint: Use `nx.karate_club_graph()`.
 #%% --------------------------------------------------------------------------------------------------------------------
-G = nx.karate_club_graph()
-print("1. Karate Club graph loaded.")
-print(f"   Number of nodes: {G.number_of_nodes()}")
-print(f"   Number of edges: {G.number_of_edges()}\n")
+
 
 #%% --------------------------------------------------------------------------------------------------------------------
 # Q2: Compute the degree centrality for each node and list the top 5 nodes by centrality.
 #     Hint: Use `nx.degree_centrality()`, then sort.
 #%% --------------------------------------------------------------------------------------------------------------------
-deg_centrality = nx.degree_centrality(G)
-top5 = sorted(deg_centrality.items(), key=lambda x: x[1], reverse=True)[:5]
-print("2. Top 5 nodes by degree centrality:")
-for node, cent in top5:
-    print(f"   Node {node}: centrality = {cent:.3f}")
-print()
+
 
 #%% --------------------------------------------------------------------------------------------------------------------
 # Q3: Find the shortest path between node 0 and node 33.
 #     Hint: Use `nx.shortest_path()`.
 #%% --------------------------------------------------------------------------------------------------------------------
-path_0_to_33 = nx.shortest_path(G, source=0, target=33)
-print("3. Shortest path from node 0 to node 33:")
-print(f"   {path_0_to_33}\n")
+
 
 #%% --------------------------------------------------------------------------------------------------------------------
 # Q4: Calculate the average clustering coefficient of the graph.
 #     Hint: Use `nx.average_clustering()`.
 #%% --------------------------------------------------------------------------------------------------------------------
-avg_clust = nx.average_clustering(G)
-print(f"4. Average clustering coefficient: {avg_clust:.3f}\n")
+
 
 #%% --------------------------------------------------------------------------------------------------------------------
 # Q5: Detect communities using the greedy modularity method and print the communities.
 #     Hint: `from networkx.algorithms.community import greedy_modularity_communities`
 #%% --------------------------------------------------------------------------------------------------------------------
-communities = greedy_modularity_communities(G)
-print("5. Communities detected (greedy modularity):")
-for i, comm in enumerate(communities, start=1):
-    print(f"   Community {i}: {sorted(comm)}")
-print()
+
 
 #%% --------------------------------------------------------------------------------------------------------------------
 # Q6: Identify all nodes whose clustering coefficient is greater than 0.5.
 #     Hint: Use `nx.clustering()` and filter.
 #%% --------------------------------------------------------------------------------------------------------------------
-clust_coeffs = nx.clustering(G)
-high_cc_nodes = [n for n, c in clust_coeffs.items() if c > 0.5]
-print("6. Nodes with clustering coefficient > 0.5:")
-print(f"   {high_cc_nodes}\n")
-
-plt.figure(figsize=(6, 5))
-pos = nx.spring_layout(G, seed=42)
-nx.draw(G, pos,
-        with_labels=True,
-        node_color='lightblue',
-        edge_color='gray')
-plt.title("Zachary's Karate Club Graph (Spring Layout)")
-plt.axis('off')
-plt.show()
