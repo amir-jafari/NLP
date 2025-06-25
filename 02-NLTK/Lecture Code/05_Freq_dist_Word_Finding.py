@@ -9,6 +9,7 @@ print(Freq_Dist)
 print(Freq_Dist.most_common(10))
 print(Freq_Dist['his'])
 
+
 Freq_Dist.plot(50, cumulative = False)
 plt.show()
 
