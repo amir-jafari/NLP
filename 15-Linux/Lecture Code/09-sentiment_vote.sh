@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # ----------------------------------------------------------------------------------------------------------------------
 pos_words=(good great excellent amazing awesome fantastic love happy)
 neg_words=(bad terrible awful horrible worst hate sad angry)

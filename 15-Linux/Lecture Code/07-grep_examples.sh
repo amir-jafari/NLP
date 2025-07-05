@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -euo pipefail
 FILE=${1:-small_corpus.txt}
 PATTERN="transformer"

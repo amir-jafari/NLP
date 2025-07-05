@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/bin/bash
+
 
 # If you do not install snowball, please install it before running the below code
 # pip install snowball
