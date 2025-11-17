@@ -1,7 +1,7 @@
 #%% --------------------------------------------------------------------------------------------------------------------
 import torch
 import numpy as np
-from datasets import load_from_disk
+from datasets import load_dataset
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
@@ -12,7 +12,7 @@ from scipy.sparse import hstack
 #%% --------------------------------------------------------------------------------------------------------------------
 device = 0 if torch.cuda.is_available() else -1
 #%% --------------------------------------------------------------------------------------------------------------------
-ds = load_from_disk("./yelp_polarity")
+ds = load_dataset("yelp_polarity")
 texts = np.array(ds["train"]["text"][:5000])
 labels = np.array(ds["train"]["label"][:5000])
 test_texts = np.array(ds["test"]["text"][:1000])

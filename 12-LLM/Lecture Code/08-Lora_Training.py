@@ -9,6 +9,54 @@ from transformers import (
     DataCollatorForLanguageModeling
 )
 from peft import LoraConfig, get_peft_model
+from accelerate import Accelerator
+from accelerate.optimizer import AcceleratedOptimizer
+import inspect
+
+"""
+Compatibility patch for Transformers + Accelerate versions:
+
+Newer `transformers` Trainer calls:
+    Accelerator.unwrap_model(..., keep_torch_compile=False)
+Older `accelerate` versions don't accept the `keep_torch_compile` kwarg,
+causing:
+    TypeError: Accelerator.unwrap_model() got an unexpected keyword argument 'keep_torch_compile'
+
+This patch adjusts `unwrap_model` to drop that argument when it's not supported.
+Long-term fix is to align `transformers` and `accelerate` versions.
+"""
+try:
+    _sig = inspect.signature(Accelerator.unwrap_model)
+    if "keep_torch_compile" not in _sig.parameters:
+        _orig_unwrap = Accelerator.unwrap_model
+
+        def _unwrap_model_compat(self, model, *args, **kwargs):
+            # Ignore unsupported kwarg to remain compatible with older accelerate
+            kwargs.pop("keep_torch_compile", None)
+            return _orig_unwrap(self, model, *args, **kwargs)
+
+        Accelerator.unwrap_model = _unwrap_model_compat  # type: ignore[attr-defined]
+except Exception:
+    # If anything goes wrong, continue; the original error will surface unchanged.
+    pass
+
+# Additional compatibility patch:
+# Some accelerate versions define AcceleratedOptimizer.train/eval that
+# forward to torch optimizer.train/eval (which don't exist), leading to:
+#   AttributeError: 'AdamW' object has no attribute 'train'
+# Make them safe no-ops.
+try:
+    if hasattr(AcceleratedOptimizer, "train"):
+        def _noop_train(self):
+            return self
+        AcceleratedOptimizer.train = _noop_train  # type: ignore[attr-defined]
+
+    if hasattr(AcceleratedOptimizer, "eval"):
+        def _noop_eval(self):
+            return self
+        AcceleratedOptimizer.eval = _noop_eval  # type: ignore[attr-defined]
+except Exception:
+    pass
 
 def tokenize_function(examples):
     return tokenizer(
@@ -16,7 +64,6 @@ def tokenize_function(examples):
         truncation=True,
         max_length=64,
     )
-
 #%% --------------------------------------------------------------------------------------------------------------------
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model_name = "gpt2"
