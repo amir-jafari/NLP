@@ -7,9 +7,9 @@ import gensim
 from smart_open import open
 import numpy as np
 import scipy.sparse
-
+import os
 # ==================================Please Make a Change to your directory==============================================
-path_address = '/home/ubuntu/NLP/17-Genism_Textblob/Lecture Code/corpora_vectorspaces_temp'
+path_address = os.getcwd()
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 #%% --------------------------------------------------------------------------------------------------------------------
