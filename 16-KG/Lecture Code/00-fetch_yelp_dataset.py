@@ -1,5 +1,6 @@
 #%% --------------------------------------------------------------------------------------------------------------------
 from datasets import load_dataset
+import os
 #%% --------------------------------------------------------------------------------------------------------------------
 class YelpPolarityLoader:
     """
@@ -15,7 +16,8 @@ class YelpPolarityLoader:
         Returns:
             train, test splits
         """
-        ds = load_dataset("yelp_polarity", data_dir=self.data_dir)
+        token = os.getenv("HF_TOKEN")
+        ds = load_dataset("yelp_polarity", cache_dir=self.data_dir, token=token)
         self.train = ds["train"]
         self.test  = ds["test"]
         print(f"Loaded {len(self.train)} train examples and {len(self.test)} test examples.")

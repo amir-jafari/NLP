@@ -3,7 +3,6 @@ import nltk
 from nltk.corpus import wordnet as wn
 import networkx as nx
 import spacy
-from rdflib import Graph, Namespace, RDF, RDFS, URIRef, Literal
 #%% --------------------------------------------------------------------------------------------------------------------
 nltk.download('wordnet')
 syns = wn.synsets("apple")
@@ -37,18 +36,22 @@ for tok in doc:
             spo.append((subj, pred, obj))
 print("3) Extracted SPO:", spo)
 #%% --------------------------------------------------------------------------------------------------------------------
-EX = Namespace("http://example.org/")
-g = Graph()
-# define classes and properties
-g.add((EX.Person, RDF.type, RDFS.Class))
-g.add((EX.worksAt, RDF.type, RDF.Property))
-# add an instance
-alice = URIRef(EX.Alice)
-g.add((alice, RDF.type, EX.Person))
-org = URIRef(EX.AcmeCorp)
-g.add((alice, EX.worksAt, org))
-g.add((org, RDFS.label, Literal("Acme Corporation")))
-# serialize to Turtle
-output_file = "kg_app.ttl"
-g.serialize(destination=output_file, format="turtle")
+# Simple knowledge graph using NetworkX
+kg = nx.DiGraph()
+# add classes and instances
+kg.add_node("Person", node_type="class")
+kg.add_node("Organization", node_type="class")
+kg.add_node("Alice", node_type="instance", instance_of="Person")
+kg.add_node("AcmeCorp", node_type="instance", instance_of="Organization", label="Acme Corporation")
+# add relationships
+kg.add_edge("Alice", "AcmeCorp", relation="worksAt")
+# serialize to simple format
+output_file = "kg_app.txt"
+with open(output_file, "w") as f:
+    f.write("# Nodes\n")
+    for node, attrs in kg.nodes(data=True):
+        f.write(f"{node}: {attrs}\n")
+    f.write("\n# Edges\n")
+    for u, v, attrs in kg.edges(data=True):
+        f.write(f"{u} -> {v}: {attrs}\n")
 print(f"4) Sample KG written to {output_file}")
