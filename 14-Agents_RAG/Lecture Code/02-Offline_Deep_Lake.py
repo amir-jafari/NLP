@@ -7,8 +7,15 @@
 import deeplake
 from deeplake import types
 import numpy as np
+import shutil
+import os
 #%% --------------------------------------------------------------------------------------------------------------------
 # 1) Create an offline dataset locally
+# Remove existing dataset if it exists
+dataset_path = "my_local_vectorstore"
+if os.path.exists(dataset_path):
+    shutil.rmtree(dataset_path)
+
 ds = deeplake.create("file://my_local_vectorstore")
 ds.add_column("text", types.Text(index_type=types.BM25))
 ds.add_column("embedding", types.Embedding(768))

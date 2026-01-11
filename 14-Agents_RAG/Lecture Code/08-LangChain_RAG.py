@@ -5,11 +5,13 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_aws import ChatBedrock
 from langchain_aws.embeddings import BedrockEmbeddings
 from langchain_text_splitters.character import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
-from langchain.indexes import VectorstoreIndexCreator
+from langchain_community.vectorstores import Chroma
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
 #%% --------------------------------------------------------------------------------------------------------------------
 parser = configparser.ConfigParser()
-parser.read("/tmp/pycharm_project_488/14-Agents_RAG/Lecture Code/config.ini")
+parser.read("../../14-Agents_RAG/Lecture Code/config.ini")
 client = boto3.client(
     service_name="bedrock-runtime",
     region_name="us-east-1",
@@ -19,12 +21,19 @@ client = boto3.client(
 )
 #%% --------------------------------------------------------------------------------------------------------------------
 def create_index(path="The-Life-of-Abraham-Lincoln_page2.pdf"):
+    # Load PDF
     data_load = PyPDFLoader(path)
+    documents = data_load.load()
+
+    # Split documents
     data_split = RecursiveCharacterTextSplitter(
         separators=["\n\n", "\n", " "],
         chunk_size=100,
         chunk_overlap=10
     )
+    split_docs = data_split.split_documents(documents)
+
+    # Create embeddings
     data_embedding = BedrockEmbeddings(
         client=client,
         # There are limited model_id can be used as embedding model.
@@ -32,12 +41,13 @@ def create_index(path="The-Life-of-Abraham-Lincoln_page2.pdf"):
         model_id="amazon.titan-embed-text-v2:0",
         region_name="us-east-1"
     )
-    data_index = VectorstoreIndexCreator(
-        text_splitter=data_split,
-        embedding=data_embedding,
-        vectorstore_cls=FAISS
+
+    # Create Chroma vector store
+    db_index = Chroma.from_documents(
+        split_docs,
+        data_embedding,
+        persist_directory="./chroma_db"
     )
-    db_index = data_index.from_loaders([data_load])
     return db_index
 
 def get_llm():
@@ -50,7 +60,27 @@ def get_llm():
 
 def rag_response(index, question):
     llm = get_llm()
-    response = index.query(question, llm)
+    retriever = index.as_retriever()
+
+    # Create RAG prompt template
+    template = """Answer the question based only on the following context:
+{context}
+
+Question: {question}
+
+Answer:"""
+
+    prompt = ChatPromptTemplate.from_template(template)
+
+    # Create RAG chain using LCEL (LangChain Expression Language)
+    rag_chain = (
+        {"context": retriever, "question": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
+
+    response = rag_chain.invoke(question)
     return response
 
 response = rag_response(create_index(), "When was Lincoln born?")

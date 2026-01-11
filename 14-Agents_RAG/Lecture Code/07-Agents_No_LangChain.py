@@ -3,7 +3,7 @@ import configparser
 import boto3
 import re
 from langchain_aws import ChatBedrock
-from langchain.schema import SystemMessage, HumanMessage, AIMessage
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 #%% --------------------------------------------------------------------------------------------------------------------
 def get_word_length(word: str) -> int:
     return len(word)
@@ -22,7 +22,7 @@ def convert_to_langchain_messages(conversation):
     return [dict_to_lc_message(m) for m in conversation]
 def call_claude(messages):
     lc_messages = convert_to_langchain_messages(messages)
-    chat_result = llm(lc_messages)
+    chat_result = llm.invoke(lc_messages)
     return chat_result.content
 
 def run_agent(query: str):
