@@ -1,6 +1,6 @@
 # python -m spacy download en_core_web_md
 import spacy
-nlp = spacy.load("en_core_web_lg")
+nlp = spacy.load("en_core_web_sm")
 
 
 doc1 = nlp("I like nlp class")

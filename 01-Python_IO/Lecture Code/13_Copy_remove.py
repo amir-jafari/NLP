@@ -1,10 +1,10 @@
 import shutil
 import os
 import subprocess
-shutil.rmtree('new_test_dir')
+# shutil.rmtree('new_test_dir')
 
-os.makedirs('test', exist_ok=True)
-shutil.copytree('test', 'test1')
+# os.makedirs('test', exist_ok=True)
+# shutil.copytree('test', 'test1')
 
 os.system('python3 01_Strings.py')
 subprocess.call('python3 01_Strings.py', shell=True)

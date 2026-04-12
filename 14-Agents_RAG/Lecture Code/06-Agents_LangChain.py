@@ -19,7 +19,7 @@ def get_word_length(word: str) -> int:
     return len(word)
 #%% --------------------------------------------------------------------------------------------------------------------
 tools = [get_word_length]
-llm = ChatBedrock(client=bedrock_client, model_id="anthropic.claude-3-5-sonnet-20240620-v1:0",)
+llm = ChatBedrock(client=bedrock_client, model_id="us.anthropic.claude-sonnet-4-5-20250929-v1:0",)
 #%% --------------------------------------------------------------------------------------------------------------------
 # Bind tools to the LLM (enables tool calling)
 llm_with_tools = llm.bind_tools(tools)

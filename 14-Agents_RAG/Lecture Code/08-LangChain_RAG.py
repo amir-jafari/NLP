@@ -53,7 +53,7 @@ def create_index(path="The-Life-of-Abraham-Lincoln_page2.pdf"):
 def get_llm():
     llm = ChatBedrock(
         client=client,
-        model_id="anthropic.claude-3-5-sonnet-20240620-v1:0",
+        model_id="us.anthropic.claude-sonnet-4-5-20250929-v1:0",
         region_name="us-east-1"
     )
     return llm

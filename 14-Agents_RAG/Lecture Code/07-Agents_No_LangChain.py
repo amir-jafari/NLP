@@ -77,7 +77,7 @@ bedrock_client = boto3.client(service_name="bedrock-runtime",region_name="us-eas
     aws_secret_access_key=parser["BedRock_LLM_API"]["aws_secret_access_key"],
     aws_session_token=parser["BedRock_LLM_API"]["aws_session_token"])
 #%% --------------------------------------------------------------------------------------------------------------------
-llm = ChatBedrock(client=bedrock_client,model_id="anthropic.claude-3-5-sonnet-20240620-v1:0",)
+llm = ChatBedrock(client=bedrock_client,model_id="us.anthropic.claude-sonnet-4-5-20250929-v1:0",)
 #%% --------------------------------------------------------------------------------------------------------------------
 TOOLS = {"get_word_length": get_word_length}
 #%% --------------------------------------------------------------------------------------------------------------------
