@@ -130,7 +130,7 @@ def acc(pred,label):
 
 clip = 5
 epochs = 50
-valid_loss_min = np.Inf
+valid_loss_min = np.inf
 epoch_tr_loss, epoch_vl_loss = [], []
 epoch_tr_acc, epoch_vl_acc = [], []
 
