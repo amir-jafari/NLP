@@ -23,7 +23,6 @@ x_train,x_test,y_train,y_test = train_test_split(X,y,stratify=y)
 print(f'shape of train data is {x_train.shape}')
 print(f'shape of test data is {x_test.shape}')
 
-
 def preprocess_string(s):
     s = re.sub(r"[^\w\s]", '', s)
     s = re.sub(r"\s+", '', s)
