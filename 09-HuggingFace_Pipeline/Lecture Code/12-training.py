@@ -8,7 +8,7 @@ from tqdm.auto import tqdm
 
 num_epochs = 3
 
-raw_datasets = load_dataset("glue", "mrpc")
+raw_datasets = load_dataset("nyu-mll/glue", "mrpc")
 checkpoint = "bert-base-uncased"
 tokenizer = AutoTokenizer.from_pretrained(checkpoint)
 
@@ -61,6 +61,7 @@ for epoch in range(num_epochs):
         lr_scheduler.step()
         optimizer.zero_grad()
         progress_bar.update(1)
+progress_bar.close()
 
 model.eval()
 correct = 0
