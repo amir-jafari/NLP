@@ -28,8 +28,8 @@ def tokenize_sample_data(data):
     if _tokenizer is None:                       # load the tokenizer once, not for every batch
         _tokenizer = load_tokenizer(config['condi_gen']['model_name'])
     tokenizer = _tokenizer
-    input_feature = tokenizer(data[config['condi_gen']['input_feature']], truncation=True, max_length=int(config['condi_gen']['max_length']), padding='max_length')
-    label = tokenizer(data[config['condi_gen']['label']], truncation=True, max_length=int(config['condi_gen']['max_length']), padding='max_length')
+    input_feature = tokenizer([str(x) if x is not None else '' for x in data[config['condi_gen']['input_feature']]], truncation=True, max_length=int(config['condi_gen']['max_length']), padding='max_length')
+    label = tokenizer([str(x) if x is not None else '' for x in data[config['condi_gen']['label']]], truncation=True, max_length=int(config['condi_gen']['max_length']), padding='max_length')
 
     return {
         "input_ids": input_feature["input_ids"],
