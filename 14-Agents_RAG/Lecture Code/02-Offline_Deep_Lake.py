@@ -1,57 +1,49 @@
 #%% --------------------------------------------------------------------------------------------------------------------
-# pip install deeplake
-# The below code must run deeplake 4.0, not deeplake 3.0. The function in two different versions.
-
-# DO NOT 100% believe ChatGPT and the deeplake official website, they always do not update.
+# Offline vector store with Deep Lake 4.x + real Qwen embeddings from Ollama
+#   pip install deeplake ollama        (code below is for deeplake 4.x, the 3.x API is different)
+#   ollama pull qwen3-embedding:0.6b
 #%% --------------------------------------------------------------------------------------------------------------------
+import os
+import shutil
 import deeplake
 from deeplake import types
-import numpy as np
-import shutil
-import os
-#%% --------------------------------------------------------------------------------------------------------------------
-# 1) Create an offline dataset locally
-# Remove existing dataset if it exists
-dataset_path = "my_local_vectorstore"
-if os.path.exists(dataset_path):
-    shutil.rmtree(dataset_path)
+import ollama
 
-ds = deeplake.create("file://my_local_vectorstore")
-ds.add_column("text", types.Text(index_type=types.BM25))
-ds.add_column("embedding", types.Embedding(768))
-ds.commit()
+EMBEDDING_MODEL = 'qwen3-embedding:0.6b'
+DATASET_PATH = 'my_local_vectorstore'
+
+def embed(texts):
+    return ollama.embed(model=EMBEDDING_MODEL, input=texts)['embeddings']
 #%% --------------------------------------------------------------------------------------------------------------------
-# 2) Append data (TEXT & EMBEDDINGS)
+# 1) Create a local (offline) dataset with a text column and an embedding column
 documents = [
     "Deep Lake is awesome for offline vector storage!",
-    "Here is another document.",
-    "Offline usage with create/open in Deep Lake 4.0!"
+    "Cats sleep about two thirds of every day.",
+    "Abraham Lincoln was the 16th president of the United States.",
 ]
-# Dummy embeddings
-embeddings = [np.random.randn(768).tolist() for _ in documents]
-ds.append({
-    "text": documents,
-    "embedding": embeddings
-})
-ds.commit()
-#%% --------------------------------------------------------------------------------------------------------------------
-# 3) Re-open the dataset offline, and do a quick vector query
-ds_opened = deeplake.open("file://my_local_vectorstore")
-query_emb = np.random.randn(768).tolist()
-query_str = ",".join(str(x) for x in query_emb)
+doc_embeddings = embed(documents)
+dim = len(doc_embeddings[0])                       # 1024 for qwen3-embedding:0.6b
 
-tql = f"""
-SELECT * 
-FROM (
-    SELECT *, cosine_similarity(embedding, ARRAY[{query_str}]) as score
-    FROM (
-        SELECT *, ROW_NUMBER() AS row_id
-    )
-)
-ORDER BY score DESC
-LIMIT 2
-"""
+if os.path.exists(DATASET_PATH):
+    shutil.rmtree(DATASET_PATH)
+ds = deeplake.create(f"file://{DATASET_PATH}")
+ds.add_column("text", types.Text())
+ds.add_column("embedding", types.Embedding(dim))
 #%% --------------------------------------------------------------------------------------------------------------------
-results = ds_opened.query(tql)
+# 2) Append text + embeddings and commit (Deep Lake versions data like git)
+ds.append({"text": documents, "embedding": doc_embeddings})
+ds.commit("add first documents")
+#%% --------------------------------------------------------------------------------------------------------------------
+# 3) Re-open the dataset and run a vector search with TQL (Tensor Query Language)
+ds = deeplake.open_read_only(f"file://{DATASET_PATH}")
+query = "Who was president of the US?"
+q = ",".join(str(x) for x in embed(query)[0])
+
+results = ds.query(f"""
+    SELECT *, cosine_similarity(embedding, ARRAY[{q}]) AS score
+    ORDER BY cosine_similarity(embedding, ARRAY[{q}]) DESC
+    LIMIT 2
+""")
+print("Query:", query)
 for row in results:
     print(f"[score={row['score']:.3f}] {row['text']}")

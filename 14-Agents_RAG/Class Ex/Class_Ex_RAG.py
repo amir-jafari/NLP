@@ -22,13 +22,13 @@ print(20*'-' + 'End Q1' + 20*'-')
 # Class_Ex2:
 # Creating and Using Embeddings
 #
-# How do you generate embeddings for a list of text chunks using a simple 11-Hugging Face model like
-# sentence-transformers/all-MiniLM-L6-v2
+# How do you generate embeddings for a list of text chunks using a local Qwen embedding model served by Ollama
+# (ollama pull qwen3-embedding:0.6b ; pip install ollama)?
 #
 # example_chunks = [
 #     "RAG involves a retriever and a generator.",
 #     "The retriever finds relevant documents.",
-#     "The generator is typically an 12-LLM that produces a final answer."
+#     "The generator is typically an LLM that produces a final answer."
 # ]
 # ----------------------------------------------------------------------------------------------------------------------
 print(20*'-' + 'Begin Q2' + 20*'-')
@@ -50,7 +50,7 @@ print(20*'-' + 'End Q2' + 20*'-')
 print(20*'-' + 'Begin Q3' + 20*'-')
 
 
-print(20*'-' + 'End Q2' + 20*'-')
+print(20*'-' + 'End Q3' + 20*'-')
 
 # ======================================================================================================================
 # Class_Ex4:
@@ -61,12 +61,13 @@ print(20*'-' + 'End Q2' + 20*'-')
 #
 # Hint:
 # Use the same FAISS index from the previous exercise
-# Retrieve top chunks and “generate” an answer by just combining them in a single string
+# Embed the chunk_texts and the query with Qwen (Ex2), retrieve the top chunks, then let the Qwen LLM
+# (ollama pull qwen3.5:9b) generate the final answer from them
 #
 # chunk_texts = [
 #     "RAG stands for Retrieval-Augmented Generation.",
 #     "Retriever fetches relevant information from a vector store.",
-#     "Generator (12-LLM) takes retrieved chunks and user query to produce an answer.",
+#     "Generator (LLM) takes retrieved chunks and user query to produce an answer.",
 #     "LangChain and other libraries simplify building RAG pipelines.",
 #     "Vector databases like FAISS power fast similarity searches."
 # ]
@@ -84,13 +85,12 @@ print(20*'-' + 'End Q4' + 20*'-')
 # chat interface?
 #
 # Hint:
-# Format the prompt using f-strings, and show how we might pass that prompt to an 12-LLM
-# For demonstration, just print the final prompt
+# Format the prompt using f-strings, print it, and pass it to the Qwen LLM with ollama.generate
 #
 # chunk_texts = [
 #     "RAG stands for Retrieval-Augmented Generation.",
 #     "Retriever fetches relevant information from a vector store.",
-#     "Generator (12-LLM) takes retrieved chunks and user query to produce an answer.",
+#     "Generator (LLM) takes retrieved chunks and user query to produce an answer.",
 #     "LangChain and other libraries simplify building RAG pipelines.",
 #     "Vector databases like FAISS power fast similarity searches."
 # ]

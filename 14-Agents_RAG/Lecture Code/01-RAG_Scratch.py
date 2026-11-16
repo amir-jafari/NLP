@@ -1,92 +1,64 @@
 #%% --------------------------------------------------------------------------------------------------------------------
-# Before using the below code, installing ollama from https://ollama.com/download and
-"""
-If you are using remote deployment on AWS, you run the below command in the terminal
-
-sudo snap install ollama
-"""
-# follow the below steps to set up
-
-# Step 1 - Open a terminal and run the following command
-"""
-ollama pull hf.co/CompendiumLabs/bge-base-en-v1.5-gguf
-ollama pull hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF
-"""
-
-# If you see the following output, it mean it is successful
-# pulling manifest
-# ...
-# verifying sha256 digest
-# writing manifest
-# success
-
-# Step 2 - Install ollama package
-"""
-pip install ollama
-"""
-
-# If you cannot use ollama, you can create a new environment in the remote deployment.
-# It is better to create a new envir for transformers, 12-LLM, RAG usage, and set it up when you use remote deployment
+# RAG from scratch with Ollama + Qwen  (no frameworks: only the `ollama` python client)
+#
+# Setup (once):
+#   1) Install Ollama: https://ollama.com/download      then start it:  ollama serve
+#   2) Pull the two Qwen models:
+#        ollama pull qwen3-embedding:0.6b     # embedding model  (text -> vector)
+#        ollama pull qwen3.5:9b               # language model   (generates the answer)
+#   3) pip install ollama
+#
+# RAG = 1) Load data  ->  2) Embed + store  ->  3) Retrieve  ->  4) Generate
 #%% --------------------------------------------------------------------------------------------------------------------
 import ollama
+
+EMBEDDING_MODEL = 'qwen3-embedding:0.6b'
+LANGUAGE_MODEL = 'qwen3.5:9b'
 #%% --------------------------------------------------------------------------------------------------------------------
-# Step 1 - Loading the dataset
-dataset = []
+# Step 1 - Load the dataset (each line = one chunk)
 with open('cat-facts.txt', 'r') as file:
-  dataset = file.readlines()
-  print(f'Loaded {len(dataset)} entries')
+    dataset = [line.strip() for line in file if line.strip()]
+print(f'Loaded {len(dataset)} chunks')
 #%% --------------------------------------------------------------------------------------------------------------------
-# Step 2 - Implement the vector database
-EMBEDDING_MODEL = 'hf.co/CompendiumLabs/bge-base-en-v1.5-gguf'
-LANGUAGE_MODEL = 'hf.co/bartowski/Llama-3.2-1B-Instruct-GGUF'
-
-VECTOR_DB = []
-
-def add_chunk_to_database(chunk):
-  embedding = ollama.embed(model=EMBEDDING_MODEL, input=chunk)['embeddings'][0]
-  VECTOR_DB.append((chunk, embedding))
-
-for i, chunk in enumerate(dataset):
-  add_chunk_to_database(chunk)
-  print(f'Added chunk {i+1}/{len(dataset)} to the database')
+# Step 2 - Build a "vector database": a plain list of (chunk, embedding)
+embeddings = ollama.embed(model=EMBEDDING_MODEL, input=dataset)['embeddings']   # one call embeds all chunks
+VECTOR_DB = list(zip(dataset, embeddings))
+print(f'Vector DB has {len(VECTOR_DB)} entries, dim = {len(embeddings[0])}')
 #%% --------------------------------------------------------------------------------------------------------------------
-# Step 3 - Implement the retrieval function
+# Step 3 - Retrieval: embed the query, rank chunks by cosine similarity
 def cosine_similarity(a, b):
-  dot_product = sum([x * y for x, y in zip(a, b)])
-  norm_a = sum([x ** 2 for x in a]) ** 0.5
-  norm_b = sum([x ** 2 for x in b]) ** 0.5
-  return dot_product / (norm_a * norm_b)
+    dot = sum(x * y for x, y in zip(a, b))
+    norm_a = sum(x * x for x in a) ** 0.5
+    norm_b = sum(x * x for x in b) ** 0.5
+    return dot / (norm_a * norm_b)
 
 def retrieve(query, top_n=3):
-  query_embedding = ollama.embed(model=EMBEDDING_MODEL, input=query)['embeddings'][0]
-  similarities = []
-  for chunk, embedding in VECTOR_DB:
-    similarity = cosine_similarity(query_embedding, embedding)
-    similarities.append((chunk, similarity))
-  similarities.sort(key=lambda x: x[1], reverse=True)
-  return similarities[:top_n]
+    q_emb = ollama.embed(model=EMBEDDING_MODEL, input=query)['embeddings'][0]
+    scores = [(chunk, cosine_similarity(q_emb, emb)) for chunk, emb in VECTOR_DB]
+    return sorted(scores, key=lambda x: x[1], reverse=True)[:top_n]
 #%% --------------------------------------------------------------------------------------------------------------------
-# Step 4 - Generation phrase
-input_query = input('Ask me a question: ')
-retrieved_knowledge = retrieve(input_query)
+# Step 4 - Generation: put the retrieved chunks into the prompt
+question = input('Ask me a question about cats: ') or 'How long do cats sleep?'
+retrieved = retrieve(question)
 
 print('Retrieved knowledge:')
-for chunk, similarity in retrieved_knowledge:
-  print(f' - (similarity: {similarity:.2f}) {chunk}')
+for chunk, score in retrieved:
+    print(f'  ({score:.2f}) {chunk}')
 
-instruction_prompt = f'''You are a helpful chatbot.
-Use only the following pieces of context to answer the question. Don't make up any new information:
-{'\n'.join([f' - {chunk}' for chunk, similarity in retrieved_knowledge])}
-'''
-#%% --------------------------------------------------------------------------------------------------------------------
+context = '\n'.join(f'- {chunk}' for chunk, _ in retrieved)
+system_prompt = f"""You are a helpful chatbot.
+Use only the following context to answer the question. Don't make up any new information.
+Context:
+{context}"""
+
 stream = ollama.chat(
-  model=LANGUAGE_MODEL,
-  messages=[
-    {'role': 'system', 'content': instruction_prompt},
-    {'role': 'user', 'content': input_query},
-  ],
-  stream=True,
+    model=LANGUAGE_MODEL,
+    messages=[{'role': 'system', 'content': system_prompt},
+              {'role': 'user', 'content': question}],
+    think=False,      # Qwen3.5 is a "thinking" model; turn thinking off for a short, direct answer
+    stream=True,
 )
-print('Chatbot response:')
-for chunk in stream:
-  print(chunk['message']['content'], end='', flush=True)
+print('\nChatbot response:')
+for part in stream:
+    print(part['message']['content'], end='', flush=True)
+print()
