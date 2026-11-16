@@ -15,29 +15,18 @@ from dotenv import load_dotenv  #  pip3 install python-dotenv
 from configparser import ConfigParser, ExtendedInterpolation
 
 class Dataset(torch.utils.data.Dataset):
+    """Input = keywords, target = review text (both tokenized to 32 tokens)."""
     def __init__(self, df):
-        self.labels = [tokenizer(text,
-                                padding='max_length',
-                                max_length=32,
-                                truncation=True,
-                                return_tensors="pt") for text in df['review_body']]
-        self.texts = [tokenizer(" ".join(text),
-                                padding='max_length',
-                                max_length=32,
-                                truncation=True,
+        self.texts = [tokenizer(str(text), padding='max_length', max_length=32, truncation=True,
                                 return_tensors="pt") for text in df['keywords']]
-
-    def classes(self):
-        return self.labels
+        self.labels = [tokenizer(str(text), padding='max_length', max_length=32, truncation=True,
+                                 return_tensors="pt") for text in df['review_body']]
 
     def __len__(self):
         return len(self.labels)
 
     def __getitem__(self, idx):
-        texts = self.texts[idx]
-        # y = np.array(self.labels[idx])
-        y = self.labels[idx]
-        return texts, y
+        return self.texts[idx], self.labels[idx]
 
 
 if __name__=='__main__':
@@ -56,8 +45,9 @@ if __name__=='__main__':
 
     # data = load_dataset("csv", data_files=train_file_path)
     df= pd.read_csv(train_file_path)
-    df_train, df_val, df_test = np.split(df.sample(frac=1, random_state=123),
-                                         [int(0.8 * len(df)), int(0.9 * len(df))])
+    df = df.sample(frac=1, random_state=123).reset_index(drop=True)          # shuffle, then 80/10/10 split
+    n_train, n_val = int(0.8 * len(df)), int(0.9 * len(df))
+    df_train, df_val, df_test = df.iloc[:n_train], df.iloc[n_train:n_val], df.iloc[n_val:]
 
     print(len(df_train), len(df_val), len(df_test))
 
@@ -67,11 +57,9 @@ if __name__=='__main__':
     train_dataloader = DataLoader(train, batch_size=batch_size, shuffle=True)
     val_dataloader = DataLoader(val, batch_size=batch_size)
 
-    use_cuda = True
-    device = torch.device("cuda" if use_cuda else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model_path = config['seq2seq']['model_path']
-    overwrite_output_dir = True
     per_device_train_batch_size = int(config['seq2seq']['batch_size'])
     num_train_epochs = int(config['seq2seq']['epochs'])
     save_steps = int(config['seq2seq']['save_steps'])
@@ -86,50 +74,47 @@ if __name__=='__main__':
 
     model = load_model(model_name)
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
-    criterion = torch.nn.CrossEntropyLoss()
 
-    if use_cuda:
-        model = model.cuda()
-        criterion = criterion.cuda()
+    model = model.to(device)
 
     for epoch in range(num_train_epochs):
-        total_acc_train = 0
         total_loss_train = 0
+        model.train()
         for train_input, train_label in tqdm(train_dataloader):
             train_label = train_label['input_ids'].squeeze(1).to(device)
-            mask = train_input['attention_mask'].to(device)
-            input_id = train_input["input_ids"].squeeze(1).to(device)
-            decoder_input_ids = model._shift_right(input_id).squeeze(1).to(device)
+            train_label[train_label == tokenizer.pad_token_id] = -100       # ignore padding in the loss
+            mask = train_input['attention_mask'].squeeze(1).to(device)
+            input_id = train_input['input_ids'].squeeze(1).to(device)
 
             model.zero_grad()
 
-            output = model(input_ids=input_id, decoder_input_ids=decoder_input_ids, attention_mask=mask, labels=train_label)
+            # T5 creates decoder_input_ids by shifting the LABELS right (teacher forcing)
+            output = model(input_ids=input_id, attention_mask=mask, labels=train_label)
 
             batch_loss = output.loss
             total_loss_train += batch_loss.item()
             batch_loss.backward()
             optimizer.step()
 
-        total_acc_val = 0
         total_loss_val = 0
 
+        model.eval()
         with torch.no_grad():
 
             for val_input, val_label in val_dataloader:
                 val_label = val_label['input_ids'].squeeze(1).to(device)
-                mask = val_input['attention_mask'].to(device)
+                val_label[val_label == tokenizer.pad_token_id] = -100       # ignore padding in the loss
+                mask = val_input['attention_mask'].squeeze(1).to(device)
                 input_id = val_input['input_ids'].squeeze(1).to(device)
-                decoder_input_ids = model._shift_right(input_id).squeeze(1).to(device)
 
-                output = model(input_ids=input_id, decoder_input_ids=decoder_input_ids, attention_mask=mask, labels=val_label)
+                # T5 creates decoder_input_ids by shifting the LABELS right (teacher forcing)
+                output = model(input_ids=input_id, attention_mask=mask, labels=val_label)
 
                 batch_loss = output.loss
                 total_loss_val += batch_loss.item()
 
-            print(
-                f"Epochs: {epoch + 1} | Train Loss: {total_loss_train / len(df_train): .3f} \
-                | Val Loss: {total_loss_val / len(df_val): .3f} \
-                | Val Accuracy: {total_acc_val / len(df_val): .3f}")
+            print(f"Epochs: {epoch + 1} | Train Loss: {total_loss_train / len(train_dataloader): .3f} "
+                  f"| Val Loss: {total_loss_val / len(val_dataloader): .3f}")
 
 
     model.save_pretrained(model_path)

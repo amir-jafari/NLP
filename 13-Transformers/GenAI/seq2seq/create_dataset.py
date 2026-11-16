@@ -6,14 +6,14 @@ import pandas as pd
 
 def cleaning(s):
     s = str(s)
-    s = re.sub('\s\W',' ',s)
-    s = re.sub('\W,\s',' ',s)
-    s = re.sub("\d+", "", s)
-    s = re.sub('\s+',' ',s)
+    s = re.sub(r'\s\W',' ',s)
+    s = re.sub(r'\W,\s',' ',s)
+    s = re.sub(r"\d+", "", s)
+    s = re.sub(r'\s+',' ',s)
     s = re.sub('[!@#$_]', '', s)
     s = s.replace("co","")
     s = s.replace("https","")
-    s = s.replace("[\w*"," ")
+    s = s.replace("[\\w*"," ")
     return s
 
 def create_dataset(df):
@@ -107,7 +107,7 @@ def create_dataset_random(df):
             keywords.append(noun_adj_adv)
             k += 1
         if i % 10 == 0:
-            print(f"Porgress:  {i/len(df)}")
+            print(f"Progress:  {i/len(df)}")
 
     df_new['keywords'] = keywords
     df_fin = df_new.dropna(subset=['product_category', 'product_title', 'review_body', 'keywords'])
@@ -117,7 +117,7 @@ def create_dataset_random(df):
 
 if __name__=='__main__':
     PATH = os.getcwd()
-    df = pd.read_csv(os.path.join(PATH, "../../../../../../Data/Amazon_Review_sm.csv"), encoding="ISO-8859-1")
+    df = pd.read_csv(os.path.join(PATH, "../Data/Amazon_Review_200.csv"), encoding="ISO-8859-1")
     # df2 = create_dataset(df)
     df2 = create_dataset_random(df)
-    df2.to_csv(os.path.join(PATH, "../../../../../Data/Amazon_Review_sm_KW3.csv"))
+    df2.to_csv(os.path.join(PATH, "../Data/Amazon_Review_200_KW.csv"), index=False)

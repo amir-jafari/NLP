@@ -21,16 +21,23 @@ def create_bedrock_client(config):
     return session.client("bedrock-runtime", region_name="us-east-1")
 
 def query_llama3_model(client, model_id, prompt):
+    # Llama 3 Instruct expects its chat template; without it the model just keeps "completing" text
+    formatted_prompt = (
+        "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n"
+        f"{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
+    )
     body_content = {
-        "prompt": prompt
+        "prompt": formatted_prompt,
+        "max_gen_len": 256,
+        "temperature": 0.5,
     }
     try:
         response = client.invoke_model(
             modelId=model_id,
             body=json.dumps(body_content)
         )
-        response_body = response['body'].read().decode()
-        return response_body
+        response_body = json.loads(response['body'].read().decode())
+        return response_body["generation"].strip()
     except ClientError as e:
         print(f"An error occurred: {e}")
         return None

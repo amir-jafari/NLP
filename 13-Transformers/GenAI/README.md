@@ -28,14 +28,16 @@ Sample Code for Different Head from Transformers
 │   ├── train_dolly.py
 │   ├── inference_dolly.py
 │   └── utils.py
-├── CasualLM-GTPQ/ (transformer with AutoModelForSeq2SeqLM head, using AutoGTPQ)
-│   ├── train_autogtpq.py
-│   ├── inference_autogtpq.py
+├── CasualLM-QLoRA/ (4-bit quantized Qwen2.5 + LoRA adapters (bitsandbytes + peft), for the Dolly format data)
+│   ├── train_qlora.py
+│   ├── inference_qlora.py
 │   └── utils.py
+├── LLM_API/ (AWS Bedrock: Claude Sonnet 4.5, Llama 3, Titan embeddings, multi-agent demo; keys in config/config.ini)
+├── RAG/ (PDF RAG with Titan embeddings + FAISS + Claude Sonnet 4.5; Streamlit UI_Demo.py)
 ├── config (configuration folder)
 └── README.md (The main readme)
 
-> ../../Data/
+> ./Data/
 
 * Amazon_Review_200.csv
   * use for LMHeadModel and CasualLM.
@@ -44,5 +46,9 @@ Sample Code for Different Head from Transformers
   * use for ConditionalGeneration and Seq2seq.
   * data needs to contain ``input_feature``(for keywords, separate by , ) and ``label``(for context) that could be defined in **config**.
 * dolly-200.csv 
-  * use for CasualLM-Dolly and CasualLM-GTPQ.
+  * use for CasualLM-Dolly and CasualLM-QLoRA.
   * data needs to be dolly format, which contains columns ``instruction``(for questions), ``context`` (for the context that question based) and ``response``(for answers). 
+
+> How to run
+* Every script reads `config/config.ini` (the `.env` file sets `CONFIG_FILE = config.ini`); paths are relative, so run each script **from its own folder**, e.g. `cd LMHeadModel && python train_LMHead.py`.
+* Run `train_*.py` before `inference_*.py` (inference loads the fine-tuned model from `NLG_results/`).

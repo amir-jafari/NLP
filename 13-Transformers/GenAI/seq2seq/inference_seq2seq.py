@@ -1,6 +1,4 @@
-from datasets import load_dataset
-from utils import load_data, load_data_collator, load_tokenizer, load_model
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Text2TextGenerationPipeline
+from utils import load_tokenizer, load_model
 import os
 import torch
 from dotenv import load_dotenv  #  pip3 install python-dotenv
@@ -9,15 +7,15 @@ device = "cuda:0" if torch.cuda.is_available() else "cpu"
 def generate_text(model_path, keyword, max_length):
     model = load_model(model_path)
     tokenizer = load_tokenizer(model_path)
-    pipeline = Text2TextGenerationPipeline(model=model, tokenizer=tokenizer, device=0)
-    final_outputs = pipeline(
-        keyword,
+    inputs = tokenizer(keyword, return_tensors="pt").to(model.device)
+    final_outputs = model.generate(
+        **inputs,
         max_length=max_length,
         do_sample=True,
         top_k=0,
         top_p=0.9,
     )
-    print(final_outputs[0]['generated_text'])
+    print(tokenizer.decode(final_outputs[0], skip_special_tokens=True))
 
 if __name__=='__main__':
 

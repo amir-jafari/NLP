@@ -3,8 +3,6 @@ import torch
 from transformers import AutoConfig, AutoModelForCausalLM
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from datasets import load_dataset
-torch.cuda.memory_summary(device=None, abbreviated=False)
-torch.cuda.empty_cache()
 
 import os
 from dotenv import load_dotenv  #  pip3 install python-dotenv
@@ -45,6 +43,7 @@ if __name__=='__main__':
     print("################# load dataset ###################")
     data = load_dataset("csv", data_files=train_file_path)
     train_dataset = load_data(data, per_device_train_batch_size)
+    train_dataset = train_dataset.select_columns(["input_ids", "attention_mask"])
     data_collator = load_data_collator(tokenizer)
     tokenizer.save_pretrained(model_path)
     model = AutoModelForCausalLM.from_pretrained(model_name)
@@ -53,17 +52,17 @@ if __name__=='__main__':
     print("################# start train #################")
     training_args = TrainingArguments(
         output_dir=model_path,
-        overwrite_output_dir=overwrite_output_dir,
         per_device_train_batch_size=per_device_train_batch_size,
         num_train_epochs=num_train_epochs,
         save_steps=save_steps,
+        report_to="none",
     )
 
     trainer = Trainer(
         model=model,
         args=training_args,
         data_collator=data_collator,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         train_dataset=train_dataset['train'],
     )
 

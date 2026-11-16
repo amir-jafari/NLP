@@ -102,7 +102,10 @@ print("Step 10: Concatenation of heads 1 to 8 to obtain the original 8x64=512 ou
 output_attention=np.hstack((z0h1,z1h2,z2h3,z3h4,z4h5,z5h6,z6h7,z7h8))
 print(output_attention)
 # ----------------------------------------------------------------------------------------------------------------------
-from transformers import pipeline
-translator = pipeline("translation_en_to_fr")
-print(translator("It is easy to translate languages with transformers", max_length=40))
+# A full pre-trained Transformer (T5) doing the same attention math at scale: English -> French
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+tokenizer = AutoTokenizer.from_pretrained("google-t5/t5-base")
+t5 = AutoModelForSeq2SeqLM.from_pretrained("google-t5/t5-base")
+inputs = tokenizer("translate English to French: It is easy to translate languages with transformers", return_tensors="pt")
+print(tokenizer.decode(t5.generate(**inputs, max_length=40)[0], skip_special_tokens=True))
 

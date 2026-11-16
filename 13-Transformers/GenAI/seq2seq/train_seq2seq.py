@@ -1,6 +1,5 @@
 from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments
-from transformers import TextDataset, DataCollatorForSeq2Seq
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Text2TextGenerationPipeline
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from datasets import load_dataset
 from utils import load_data, load_data_collator, load_tokenizer
 import os
@@ -39,25 +38,26 @@ if __name__=='__main__':
 
     tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     train_dataset = load_data(data, per_device_train_batch_size)
-    data_collator = load_data_collator(tokenizer, checkpoint)
+    train_dataset = train_dataset.select_columns(['input_ids', 'attention_mask', 'labels'])
     tokenizer.save_pretrained(model_path)
 
     model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint).to(device)
+    data_collator = load_data_collator(tokenizer, model)
     model.save_pretrained(model_path)
 
     training_args = Seq2SeqTrainingArguments(
         output_dir=model_path,
-        overwrite_output_dir=overwrite_output_dir,
         per_device_train_batch_size=per_device_train_batch_size,
         num_train_epochs=num_train_epochs,
         save_steps=save_steps,
+        report_to="none",
     )
 
     trainer = Seq2SeqTrainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset['train'],
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         data_collator=data_collator,
     )
     trainer.train()

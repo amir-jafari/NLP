@@ -1,24 +1,21 @@
-import tensorflow as tf
 import torch
+from torch.optim import AdamW
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler
-from keras.preprocessing.sequence import pad_sequences
 from sklearn.model_selection import train_test_split
 from transformers import BertTokenizer
-from transformers import AdamW, BertForSequenceClassification, get_linear_schedule_with_warmup
+from transformers import BertForSequenceClassification, get_linear_schedule_with_warmup
 from tqdm import trange
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from transformers import BertModel, BertConfig
 # ----------------------------------------------------------------------------------------------------------------------
-device_name = tf.test.gpu_device_name()
-if device_name != '/device:GPU:0':
-    raise SystemError('GPU device not found')
-print('Found GPU at: {}'.format(device_name))
-# ----------------------------------------------------------------------------------------------------------------------
+def pad_sequences(sequences, maxlen, value=0):
+    # Truncate / pad every list of token ids to exactly maxlen (padding at the end)
+    return np.array([seq[:maxlen] + [value] * (maxlen - len(seq[:maxlen])) for seq in sequences], dtype="int64")
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-n_gpu = torch.cuda.device_count()
-torch.cuda.get_device_name(0)
+print("Using device:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU")
 # ----------------------------------------------------------------------------------------------------------------------
 df = pd.read_csv("in_domain_train.tsv", delimiter='\t', header=None,
                  names=['sentence_source', 'label', 'label_notes', 'sentence'])
@@ -40,7 +37,7 @@ epochs = 4
 # ----------------------------------------------------------------------------------------------------------------------
 
 input_ids = [tokenizer.convert_tokens_to_ids(x) for x in tokenized_texts]
-input_ids = pad_sequences(input_ids, maxlen=MAX_LEN, dtype="long", truncating="post", padding="post")
+input_ids = pad_sequences(input_ids, maxlen=MAX_LEN)
 
 attention_masks = []
 for seq in input_ids:
@@ -78,14 +75,14 @@ model = BertModel(configuration)
 configuration = model.config
 print(configuration)
 model = BertForSequenceClassification.from_pretrained("bert-base-uncased", num_labels=2)
-model.cuda()
+model.to(device)
 param_optimizer = list(model.named_parameters())
 no_decay = ['bias', 'LayerNorm.weight']
 optimizer_grouped_parameters = [
     {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)],
-     'weight_decay_rate': 0.1},
+     'weight_decay': 0.1},
     {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)],
-     'weight_decay_rate': 0.0}
+     'weight_decay': 0.0}
 ]
 
 optimizer = AdamW(optimizer_grouped_parameters,
@@ -144,6 +141,7 @@ plt.title("Training loss")
 plt.xlabel("Batch")
 plt.ylabel("Loss")
 plt.plot(train_loss_set)
+plt.savefig("training_loss.png")
 plt.show()
 # ----------------------------------------------------------------------------------------------------------------------
 df = pd.read_csv("out_of_domain_dev.tsv", delimiter='\t', header=None,
@@ -156,7 +154,7 @@ tokenized_texts = [tokenizer.tokenize(sent) for sent in sentences]
 MAX_LEN = 128
 
 input_ids = [tokenizer.convert_tokens_to_ids(x) for x in tokenized_texts]
-input_ids = pad_sequences(input_ids, maxlen=MAX_LEN, dtype="long", truncating="post", padding="post")
+input_ids = pad_sequences(input_ids, maxlen=MAX_LEN)
 attention_masks = []
 
 for seq in input_ids:
@@ -201,6 +199,6 @@ print(matthews_set)
 flat_predictions = [item for sublist in predictions for item in sublist]
 flat_predictions = np.argmax(flat_predictions, axis=1).flatten()
 flat_true_labels = [item for sublist in true_labels for item in sublist]
-matthews_corrcoef(flat_true_labels, flat_predictions)
+print("Overall Matthews correlation (MCC):", matthews_corrcoef(flat_true_labels, flat_predictions))
 # ----------------------------------------------------------------------------------------------------------------------
 

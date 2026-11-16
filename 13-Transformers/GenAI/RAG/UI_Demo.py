@@ -4,7 +4,7 @@ import json
 import numpy as np
 from dotenv import load_dotenv
 from configparser import ConfigParser, ExtendedInterpolation
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 import faiss
 import os
 import nltk
@@ -56,7 +56,7 @@ def load_pdf(file):
     reader = PdfReader(file)
     text = ""
     for page in reader.pages:
-        text += page.extract_text()
+        text += page.extract_text() + "\n"
     return text
 
 
@@ -74,7 +74,7 @@ def vectorize_chunks(chunks, bedrock_client, model_id):
         embedding = get_embedding_vectors(bedrock_client, model_id, chunk)
         if embedding:
             vectors.append(embedding)
-    vectors_array = np.array(vectors)
+    vectors_array = np.array(vectors, dtype='float32')   # FAISS needs float32
     return vectors_array
 
 
@@ -88,7 +88,8 @@ def create_faiss_index(vectors):
 
 # Query the index and retrieve relevant chunks
 def query_index(index, query_vector, chunks, top_k=10):
-    distances, indices = index.search(np.array([query_vector]), top_k)
+    top_k = min(top_k, index.ntotal)
+    distances, indices = index.search(np.array([query_vector], dtype='float32'), top_k)
     return [chunks[i] for i in indices[0]]
 
 
@@ -96,7 +97,7 @@ def query_index(index, query_vector, chunks, top_k=10):
 def ask_question(query, chunks, bedrock_client, embedding_model_id, lm_model_id, index):
     query_vector = get_embedding_vectors(bedrock_client, embedding_model_id, query)
     if query_vector:
-        relevant_chunks = query_index(index, query_vector, chunks)
+        relevant_chunks = query_index(index, query_vector, chunks, top_k=top_k)
 
         # Truncate relevant chunks if they exceed the allowed length
         prompt = "\n".join(relevant_chunks)
@@ -135,6 +136,21 @@ def ask_question(query, chunks, bedrock_client, embedding_model_id, lm_model_id,
     return None
 
 
+@st.cache_resource(show_spinner=False)
+def build_index(file_bytes, chunk_size):
+    """Runs once per (PDF, chunk size); Streamlit re-runs the whole script on every click, so we cache this."""
+    config = load_configuration()
+    bedrock_client = create_bedrock_client(config)
+    import io
+    chunks = chunk_text(load_pdf(io.BytesIO(file_bytes)), chunk_size=chunk_size)
+    vectors = vectorize_chunks(chunks, bedrock_client, EMBEDDING_MODEL_ID)
+    return chunks, create_faiss_index(vectors), bedrock_client
+
+
+EMBEDDING_MODEL_ID = "amazon.titan-embed-text-v2:0"
+LM_MODEL_ID = "us.anthropic.claude-sonnet-4-5-20250929-v1:0"   # Claude Sonnet 4.5
+
+
 def main():
     st.title("Knowledge Assistant Retrival Tool (KART) :shopping_trolley:")
 
@@ -142,23 +158,12 @@ def main():
     uploaded_file = st.file_uploader("Upload a PDF file", type="pdf")
 
     if uploaded_file is not None:
-        config = load_configuration()
-        bedrock_client = create_bedrock_client(config)
-
-        # Process the uploaded PDF
+        # Process the uploaded PDF (cached)
         with st.spinner("Processing the PDF..."):
-            pdf_text = load_pdf(uploaded_file)
-            chunks = chunk_text(pdf_text, chunk_size=NoChunks)
+            chunks, index, bedrock_client = build_index(uploaded_file.getvalue(), NoChunks)
+            embedding_model_id, lm_model_id = EMBEDDING_MODEL_ID, LM_MODEL_ID
 
-            # Set the model ID for embedding and language models
-            embedding_model_id = "amazon.titan-embed-text-v2:0"
-            lm_model_id = "anthropic.claude-3-5-sonnet-20240620-v1:0"
-
-            # Vectorize chunks and create FAISS index
-            vectors = vectorize_chunks(chunks, bedrock_client, embedding_model_id)
-            index = create_faiss_index(vectors)
-
-        st.success("PDF processed and indexed!")
+        st.success(f"PDF processed and indexed! ({len(chunks)} chunks)")
 
         # Ask a question
         question = st.text_input("Ask a question about the document:")

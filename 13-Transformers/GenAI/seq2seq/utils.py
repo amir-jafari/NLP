@@ -1,7 +1,5 @@
-from transformers import Seq2SeqTrainer, TrainingArguments
-from transformers import TextDataset, DataCollatorForSeq2Seq
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, Text2TextGenerationPipeline
-from datasets import load_dataset
+from transformers import DataCollatorForSeq2Seq
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import torch
 import os
 from dotenv import load_dotenv  #  pip3 install python-dotenv
@@ -22,15 +20,19 @@ def load_tokenizer(tokenizer_path):
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
     return tokenizer
 
+_tokenizer = None
 def tokenize_sample_data(data):
-    tokenizer = load_tokenizer(config['seq2seq']['model_name'])
+    global _tokenizer
+    if _tokenizer is None:                       # load the tokenizer once, not for every batch
+        _tokenizer = load_tokenizer(config['seq2seq']['model_name'])
+    tokenizer = _tokenizer
     input_feature = tokenizer(data[config['seq2seq']['input_feature']], truncation=True, max_length=int(config['seq2seq']['max_length']), padding='max_length')
     label = tokenizer(data[config['seq2seq']['label']], truncation=True, max_length=int(config['seq2seq']['max_length']), padding='max_length')
 
     return {
         "input_ids": input_feature["input_ids"],
         "attention_mask": input_feature["attention_mask"],
-        "labels": label["input_ids"],
+        "labels": [[t if t != tokenizer.pad_token_id else -100 for t in ids] for ids in label["input_ids"]],
     }
 
 def load_data(data, batch_size):

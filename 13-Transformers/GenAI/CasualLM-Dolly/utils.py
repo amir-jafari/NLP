@@ -50,6 +50,7 @@ def load_tokenizer(pretrained_model_name_or_path):
 def load_model(pretrained_model_name_or_path, gradient_checkpointing):
     model = AutoModelForCausalLM.from_pretrained(
         pretrained_model_name_or_path,
+        dtype=torch.float32,            # opt-350m is stored in float16; train in full precision
         trust_remote_code=True,
         use_cache=False if gradient_checkpointing else True
     )
@@ -258,7 +259,7 @@ def postprocess(tokenizer, model_outputs, return_full_text=False):
         try:
             response_pos = sequence.index(response_key_token_id)
         except ValueError:
-            logger.warn(
+            logger.warning(
                 f"Could not find response key {response_key_token_id} in: {sequence}"
             )
             response_pos = None

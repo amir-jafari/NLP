@@ -3,7 +3,7 @@ import json
 import numpy as np
 from dotenv import load_dotenv
 from configparser import ConfigParser, ExtendedInterpolation
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 import faiss
 import os
 import nltk
@@ -48,7 +48,7 @@ def load_pdf(file_path):
     reader = PdfReader(file_path)
     text = ""
     for page in reader.pages:
-        text += page.extract_text()
+        text += page.extract_text() + "\n"
     return text
 
 # Split text into chunks
@@ -64,7 +64,7 @@ def vectorize_chunks(chunks, bedrock_client, model_id):
         embedding = get_embedding_vectors(bedrock_client, model_id, chunk)
         if embedding:
             vectors.append(embedding)
-    vectors_array = np.array(vectors)
+    vectors_array = np.array(vectors, dtype='float32')   # FAISS needs float32
     return vectors_array
 
 # Store vectors in FAISS index
@@ -76,7 +76,8 @@ def create_faiss_index(vectors):
 
 # Query the index and retrieve relevant chunks
 def query_index(index, query_vector, chunks, top_k=3):
-    distances, indices = index.search(np.array([query_vector]), top_k)
+    top_k = min(top_k, index.ntotal)
+    distances, indices = index.search(np.array([query_vector], dtype='float32'), top_k)
     return [chunks[i] for i in indices[0]]
 
 # Ask a question and generate an answer with a reference
@@ -94,7 +95,7 @@ def ask_question(query, chunks, bedrock_client, embedding_model_id, lm_model_id,
 
         body_content = {
             "anthropic_version": "bedrock-2023-05-31",  # Required field
-            "max_tokens": 10000,  # Limit the number of tokens in the response
+            "max_tokens": 2000,  # Limit the number of tokens in the response
             "temperature": 1,
             "messages": [
                 {"role": "user", "content": prompt}
@@ -132,7 +133,7 @@ def main():
 
     # Set the model ID for embedding and language models
     embedding_model_id = "amazon.titan-embed-text-v2:0"
-    lm_model_id = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+    lm_model_id = "us.anthropic.claude-sonnet-4-5-20250929-v1:0"   # Claude Sonnet 4.5
 
     # Vectorize chunks and create FAISS index
     vectors = vectorize_chunks(chunks, bedrock_client, embedding_model_id)

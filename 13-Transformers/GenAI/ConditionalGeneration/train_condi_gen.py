@@ -39,26 +39,27 @@ if __name__=='__main__':
     print("################# load dataset ###################")
     tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     train_dataset = load_data(data, per_device_train_batch_size)
-    data_collator = load_data_collator(tokenizer, checkpoint)
+    train_dataset = train_dataset.select_columns(['input_ids', 'attention_mask', 'labels'])
 
     tokenizer.save_pretrained(model_path)
 
     model = load_model(checkpoint)
+    data_collator = load_data_collator(tokenizer, model)
     model.save_pretrained(model_path)
 
     training_args = TrainingArguments(
         output_dir=model_path,
-        overwrite_output_dir=overwrite_output_dir,
         per_device_train_batch_size=per_device_train_batch_size,
         num_train_epochs=num_train_epochs,
         save_steps=save_steps,
+        report_to="none",
     )
 
     trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset['train'],
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         data_collator=data_collator,
     )
     print("################# start train #################")

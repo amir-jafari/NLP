@@ -1,56 +1,14 @@
-from transformers import TextDataset, DataCollatorForLanguageModeling
-from transformers import GPT2Tokenizer, GPT2LMHeadModel, GPT2Model
-from transformers import Trainer, TrainingArguments
-from transformers import PreTrainedTokenizerFast, GPT2LMHeadModel, GPT2TokenizerFast, GPT2Tokenizer
-
+from utils import load_model, load_tokenizer
 import pandas as pd
 import numpy as np
-import re
 import os
 import torch
 from dotenv import load_dotenv  #  pip3 install python-dotenv
 from configparser import ConfigParser, ExtendedInterpolation
 '''
 https://www.kaggle.com/code/changyeop/how-to-fine-tune-gpt-2-for-beginners/notebook
+Run train_LMHead.py first: it saves the fine-tuned model to model_path.
 '''
-def cleaning(s):
-    s = str(s)
-    s = re.sub('\s\W',' ',s)
-    s = re.sub('\W,\s',' ',s)
-    s = re.sub("\d+", "", s)
-    s = re.sub('\s+',' ',s)
-    s = re.sub('[!@#$_]', '', s)
-    s = s.replace("co","")
-    s = s.replace("https","")
-    s = s.replace("[\w*"," ")
-    return s
-
-def load_dataset(file_path, tokenizer, block_size=128):
-    dataset = TextDataset(
-        tokenizer=tokenizer,
-        file_path=file_path,
-        block_size=block_size,
-    )
-    return dataset
-
-
-def load_data_collator(tokenizer, mlm=False):
-    data_collator = DataCollatorForLanguageModeling(
-        tokenizer=tokenizer,
-        mlm=mlm,
-    )
-    return data_collator
-
-def load_model(model_path):
-    model = GPT2LMHeadModel.from_pretrained(model_path)
-    return model
-
-
-def load_tokenizer(tokenizer_path):
-    tokenizer = GPT2Tokenizer.from_pretrained(tokenizer_path)
-    return tokenizer
-
-
 def generate_text(model_path, sequence, max_length):
     model = load_model(model_path)
     tokenizer = load_tokenizer(model_path)
@@ -58,7 +16,7 @@ def generate_text(model_path, sequence, max_length):
     final_outputs = model.generate(
         ids,
         do_sample=True,
-        max_length=100,
+        max_length=max_length,
         pad_token_id=model.config.eos_token_id,
         top_k=0,
         top_p=0.9,
@@ -85,13 +43,14 @@ if __name__=='__main__':
     allfiles = True
 
     if allfiles==True:
+        tokenizer_len = load_tokenizer(model_name).tokenize
         df = pd.read_csv(train_file_path, encoding="ISO-8859-1")
         seq_index = [int(x) for x in np.linspace(0, 199, 10).tolist()]
         sentences = df[config['LMHeadModel']['colunm_name']][seq_index]
         gpt2_output = []
         finetune_output = []
         for sentence in sentences:
-            len_sen = len(sentence.split(" "))
+            len_sen = min(len(tokenizer_len(sentence)), 100)
             sequence = " ".join(sentence.split(" ")[:6])
             text_output1 = generate_text(model_name, sequence, len_sen)  # change it to model_path if using fine-tuning model
             text_output2 = generate_text(model_path, sequence, len_sen)
@@ -111,4 +70,4 @@ if __name__=='__main__':
     else:
         sequence = input("Please input the start of sentence:")  # this product is
         max_len = int(input("Please input the maximum length:"))  # 20
-        generate_text(model_path, sequence, max_len)
+        print(generate_text(model_path, sequence, max_len))

@@ -2,9 +2,9 @@ import torch
 import json
 from transformers import T5Tokenizer, T5ForConditionalGeneration, T5Config
 # ----------------------------------------------------------------------------------------------------------------------
-model = T5ForConditionalGeneration.from_pretrained('t5-large')
-tokenizer = T5Tokenizer.from_pretrained('t5-large')
-device = torch.device('cuda')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model = T5ForConditionalGeneration.from_pretrained('google-t5/t5-large').to(device)   # model and inputs on the same device
+tokenizer = T5Tokenizer.from_pretrained('google-t5/t5-large')
 # ----------------------------------------------------------------------------------------------------------------------
 print(model.config)
 print(model)

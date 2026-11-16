@@ -1,57 +1,40 @@
-from transformers import AutoTokenizer, pipeline, logging
-from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, pipeline
+'''
+Quick test: run an instruction-tuned LLM that is quantized to 4 bits on the fly (bitsandbytes).
+4-bit weights need ~4x less GPU memory than 16-bit, so much larger models fit on one GPU.
+  pip install bitsandbytes accelerate
+'''
+model_name_or_path = "Qwen/Qwen2.5-0.5B-Instruct"       # try "Qwen/Qwen2.5-7B-Instruct" on a big GPU
 
-model_name_or_path = "TheBloke/Llama-2-13B-GPTQ"
-model_basename = "gptq_model-4bit-128g"
-
-use_triton = False
-
-tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True)
-
-model = AutoGPTQForCausalLM.from_quantized(model_name_or_path,
-        model_basename=model_basename,
-        use_safetensors=True,
-        trust_remote_code=True,
-        device="cuda:0",
-        use_triton=use_triton,
-        quantize_config=None)
-
-"""
-To download from a specific branch, use the revision parameter, as in this example:
-
-model = AutoGPTQForCausalLM.from_quantized(model_name_or_path,
-        revision="gptq-4bit-32g-actorder_True",
-        model_basename=model_basename,
-        use_safetensors=True,
-        trust_remote_code=True,
-        device="cuda:0",
-        quantize_config=None)
-"""
+tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
+model = AutoModelForCausalLM.from_pretrained(
+    model_name_or_path,
+    quantization_config=BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
+                                           bnb_4bit_compute_dtype=torch.bfloat16),
+    device_map={"": 0} if torch.cuda.is_available() else None,
+)
+print(f"Memory footprint: {model.get_memory_footprint() / 1e6:.0f} MB")
 
 prompt = "Tell me about AI"
-prompt_template=f'''{prompt}
-'''
+messages = [{"role": "user", "content": prompt}]
+prompt_template = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 
 print("\n\n*** Generate:")
-
-input_ids = tokenizer(prompt_template, return_tensors='pt').input_ids.cuda()
-output = model.generate(inputs=input_ids, temperature=0.7, max_new_tokens=512)
-print(tokenizer.decode(output[0]))
+inputs = tokenizer(prompt_template, return_tensors='pt').to(model.device)
+output = model.generate(**inputs, do_sample=True, temperature=0.7, max_new_tokens=200)
+print(tokenizer.decode(output[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True))
 
 # Inference can also be done using transformers' pipeline
-
-# Prevent printing spurious transformers error when using pipeline with AutoGPTQ
-logging.set_verbosity(logging.CRITICAL)
-
-print("*** Pipeline:")
+print("\n*** Pipeline:")
 pipe = pipeline(
     "text-generation",
     model=model,
     tokenizer=tokenizer,
-    max_new_tokens=512,
+    max_new_tokens=200,
+    do_sample=True,
     temperature=0.7,
     top_p=0.95,
     repetition_penalty=1.15
 )
-
-print(pipe(prompt_template)[0]['generated_text'])
+print(pipe(messages)[0]['generated_text'][-1]['content'])

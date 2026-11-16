@@ -1,2 +1,5 @@
-pip3 install python-dotenv
-pip3 install auto-gptq --extra-index-url https://huggingface.github.io/autogptq-index/whl/cu118/
+# Tested with Python 3.13, torch 2.13, transformers 5.x
+pip3 install python-dotenv transformers datasets accelerate sentencepiece
+pip3 install spacy && pip3 install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
+pip3 install bitsandbytes peft            # CasualLM-QLoRA and CasualLM-Dolly/test.py
+pip3 install boto3 pypdf faiss-cpu nltk streamlit   # LLM_API and RAG (AWS Bedrock)

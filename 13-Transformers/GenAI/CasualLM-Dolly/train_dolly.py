@@ -57,7 +57,7 @@ if __name__ == "__main__":
             print(f"Found max length: {max_length}")
             break
     if not max_length:
-        max_length = config['casualLM_dolly']['max_length']
+        max_length = int(config['casualLM_dolly']['max_length'])
         logger.info(f"Using default max length: {max_length}")
         print(f"Using default max length: {max_length}")
 
@@ -81,23 +81,21 @@ if __name__ == "__main__":
             gradient_checkpointing=True,
             logging_dir=f"{local_output_dir}/runs",
             logging_strategy="steps",
-            logging_steps=int(config['casualLM_dolly']['save_steps']),
-            evaluation_strategy="steps",
-            eval_steps=int(config['casualLM_dolly']['save_steps']),
+            logging_steps=int(config['casualLM_dolly']['logging_steps']),
+            eval_strategy="epoch",
             save_strategy="steps",
             save_steps=int(config['casualLM_dolly']['save_steps']),
             save_total_limit=int(config['casualLM_dolly']['save_total_limit']),
             load_best_model_at_end=False,
-            # report_to="tensorboard",
+            report_to="none",
             disable_tqdm=True,
             remove_unused_columns=False,
-            local_rank=2,
             warmup_steps=0,
         )
 
     trainer = Trainer(
         model=model,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         args=training_args,
         train_dataset=split_dataset["train"],
         eval_dataset=split_dataset["test"],
@@ -107,5 +105,7 @@ if __name__ == "__main__":
 
     trainer.train()
     trainer.save_model()
+    tokenizer.save_pretrained(local_output_dir)
+    print('Saved fine-tuned model to', local_output_dir)
 
 

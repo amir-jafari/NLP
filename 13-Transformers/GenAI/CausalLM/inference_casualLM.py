@@ -19,9 +19,9 @@ def generate_text(model_path, sequence, max_length):
     # model_path = os.path.join(PATH, '../../../NLG_results')
     model = load_model(model_path)
     tokenizer = load_tokenizer(model_path)
-    ids = tokenizer.encode(f'{sequence}', return_tensors='pt')
+    inputs = tokenizer(sequence, return_tensors='pt')
     final_outputs = model.generate(
-        ids,
+        **inputs,
         do_sample=True,
         max_length=max_length,
         pad_token_id=model.config.eos_token_id,
@@ -58,3 +58,4 @@ if __name__=='__main__':
         )
     )
     df_out.to_csv(config['casualLM']['out_file'])
+    print(df_out)

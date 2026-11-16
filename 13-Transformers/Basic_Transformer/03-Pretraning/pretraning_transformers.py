@@ -11,9 +11,9 @@ from transformers import pipeline
 from transformers import Trainer, TrainingArguments
 import os
 from transformers import RobertaForMaskedLM
-from transformers import LineByLineTextDataset
+from datasets import load_dataset
 # ----------------------------------------------------------------------------------------------------------------------
-paths = [str(x) for x in Path(".").glob("**/*.txt")]
+paths = ["kant.txt"]
 tokenizer = ByteLevelBPETokenizer()
 tokenizer.train(files=paths, vocab_size=52_000, min_frequency=2, special_tokens=[
     "<s>",
@@ -74,19 +74,23 @@ for p in range(0,lp):
 
 print(np)
 # ----------------------------------------------------------------------------------------------------------------------
-dataset = LineByLineTextDataset(tokenizer=tokenizer,file_path="kant.txt", block_size=128,)
+# One training example per non-empty line of kant.txt, truncated to 128 tokens
+dataset = load_dataset("text", data_files="kant.txt")["train"].filter(lambda x: len(x["text"].strip()) > 0)
+dataset = dataset.map(lambda batch: tokenizer(batch["text"], truncation=True, max_length=128),
+                      batched=True, remove_columns=["text"])
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True, mlm_probability=0.15)
 training_args = TrainingArguments(
     output_dir="./KantaiBERT",
-    overwrite_output_dir=True,
     num_train_epochs=1,
     per_device_train_batch_size=64,
     save_steps=10_000,
     save_total_limit=2,
+    report_to="none",
 )
 trainer = Trainer( model=model, args=training_args, data_collator=data_collator, train_dataset=dataset,)
 trainer.train()
 trainer.save_model(os.getcwd() +'/content/KantaiBERT')
+tokenizer.save_pretrained(os.getcwd() +'/content/KantaiBERT')
 fill_mask = pipeline("fill-mask", model=os.getcwd() +'/content/KantaiBERT', tokenizer=os.getcwd() +'/content/KantaiBERT')
-fill_mask("Human thinking involves<mask>.")
+print(fill_mask("Human thinking involves<mask>."))
 
